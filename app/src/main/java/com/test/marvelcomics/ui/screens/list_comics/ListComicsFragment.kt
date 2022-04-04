@@ -22,13 +22,14 @@ class ListComicsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding= ListComicsFragmentBinding.inflate(inflater, container, false)
+        binding = ListComicsFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         listComicsViewModel = ViewModelProvider(this)[ListComicsViewModel::class.java]
+
     }
 
 }

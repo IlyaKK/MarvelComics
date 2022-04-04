@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/padding_one_comic_frame_layout">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/one_comic_in_list_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/corner_radius_card_view">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_one_comic_constraint_layout">
+
+            <ImageView
+                android:id="@+id/picture_comic_image_view"
+                android:layout_width="100dp"
+                android:layout_height="150dp"
+                android:contentDescription="@string/picture_of_comic"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/name_comic_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_text_view"
+                android:layout_marginTop="@dimen/margin_text_view"
+                android:layout_marginEnd="@dimen/margin_text_view"
+                android:textSize="@dimen/big_text_size"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/picture_comic_image_view"
+                app:layout_constraintTop_toTopOf="parent"
+                tool:text="Title" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/title_writer_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_text_view"
+                android:layout_marginTop="@dimen/margin_text_view"
+                android:text="@string/title_writer"
+                android:textSize="@dimen/medium_text_size"
+                app:layout_constraintStart_toEndOf="@id/picture_comic_image_view"
+                app:layout_constraintTop_toBottomOf="@id/name_comic_text_view" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/name_writer_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_text_view"
+                android:textSize="@dimen/medium_text_size"
+                app:layout_constraintStart_toEndOf="@id/title_writer_text_view"
+                app:layout_constraintTop_toTopOf="@id/title_writer_text_view" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/title_penciler_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_text_view"
+                android:layout_marginTop="@dimen/margin_text_view"
+                android:layout_marginBottom="@dimen/margin_text_view"
+                android:text="@string/title_penciler"
+                android:textSize="@dimen/medium_text_size"
+                app:layout_constraintStart_toEndOf="@id/picture_comic_image_view"
+                app:layout_constraintTop_toBottomOf="@id/name_writer_text_view" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/name_penciler_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_text_view"
+                android:textSize="@dimen/medium_text_size"
+                app:layout_constraintStart_toEndOf="@id/title_penciler_text_view"
+                app:layout_constraintTop_toTopOf="@id/title_penciler_text_view" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

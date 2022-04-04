@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="small_dimen">10dp</dimen>
+
+    <dimen name="big_text_size">26sp</dimen>
+    <dimen name="medium_text_size">18sp</dimen>
+
+    <dimen name="small_margin">6dp</dimen>
+
+    <dimen name="small_padding">@dimen/small_dimen</dimen>
+
+    <dimen name="margin_text_view">@dimen/small_margin</dimen>
+
+    <dimen name="padding_one_comic_constraint_layout">@dimen/small_padding</dimen>
+
+    <dimen name="padding_one_comic_frame_layout">@dimen/small_padding</dimen>
+
+    <dimen name="corner_radius_card_view">@dimen/small_dimen</dimen>
+</resources>
