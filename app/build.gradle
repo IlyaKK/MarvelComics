@@ -32,9 +32,22 @@ android {
     buildFeatures {
         viewBinding true
     }
+    buildTypes.each {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("apikey.properties").newDataInputStream())
+        def privateApiKey = properties.getProperty("marvel_comics_private_api_key", "")
+        it.buildConfigField "String", "MARVEL_PRIVATE_API_KEY", privateApiKey
+        def publicApiKey = properties.getProperty("marvel_comics_public_api_key", "")
+        it.buildConfigField "String", "MARVEL_PUBLIC_API_KEY", publicApiKey
+    }
 }
 
 dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    implementation 'com.github.bumptech.glide:glide:4.13.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'

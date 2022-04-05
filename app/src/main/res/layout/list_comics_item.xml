@@ -10,6 +10,7 @@
         android:id="@+id/one_comic_in_list_card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/card_color_pink"
         app:cardCornerRadius="@dimen/corner_radius_card_view">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,8 +29,8 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/name_comic_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_text_view"
                 android:layout_marginTop="@dimen/margin_text_view"
                 android:layout_marginEnd="@dimen/margin_text_view"

@@ -2,7 +2,7 @@
 <resources>
     <dimen name="small_dimen">10dp</dimen>
 
-    <dimen name="big_text_size">26sp</dimen>
+    <dimen name="big_text_size">24sp</dimen>
     <dimen name="medium_text_size">18sp</dimen>
 
     <dimen name="small_margin">6dp</dimen>
@@ -13,7 +13,7 @@
 
     <dimen name="padding_one_comic_constraint_layout">@dimen/small_padding</dimen>
 
-    <dimen name="padding_one_comic_frame_layout">@dimen/small_padding</dimen>
+    <dimen name="padding_one_comic_frame_layout">5dp</dimen>
 
-    <dimen name="corner_radius_card_view">@dimen/small_dimen</dimen>
+    <dimen name="corner_radius_card_view">16dp</dimen>
 </resources>
