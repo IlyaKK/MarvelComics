@@ -7,6 +7,6 @@ class ListComicsContract {
     interface ViewModel {
         val listMarvelComicsLiveData: LiveData<List<Comic>>
 
-        fun getPublishedMarvelComics(nowData: String, offset: Int = 0)
+        fun getPublishedMarvelComics(dataRange: String, offset: Int = 0)
     }
 }

@@ -7,11 +7,16 @@ import com.test.marvelcomics.databinding.DownloadViewBinding
 
 class DownloadViewHolder(private val binding: DownloadViewBinding) :
     RecyclerView.ViewHolder(binding.root) {
-    fun bind(loadState: Boolean) {
-        if(loadState){
-            binding.downloadProgressBar.visibility = VISIBLE
-        }else{
-            binding.downloadProgressBar.visibility = INVISIBLE
-        }
+
+    fun getListenerProgressBar(): ListComicsAdapter.ListenerProgressBar {
+        return (object : ListComicsAdapter.ListenerProgressBar {
+            override fun setLoadState(isLoadState: Boolean) {
+                if (isLoadState) {
+                    binding.downloadProgressBar.visibility = VISIBLE
+                } else {
+                    binding.downloadProgressBar.visibility = INVISIBLE
+                }
+            }
+        })
     }
 }

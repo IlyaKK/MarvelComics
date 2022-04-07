@@ -48,11 +48,13 @@ class ListComicsFragment : Fragment() {
 
     private fun initializeReceiveListMarvelComics() {
         listComicsViewModel.getPublishedMarvelComics(
-            nowData = "1949-01-01,2022-04-05",
+            dataRange = "1949-01-01,2022-04-05",
         )
 
         initializeScrollingRecyclerView()
+        listComicsAdapter.setStateProgressBar(true)
         listComicsViewModel.listMarvelComicsLiveData.observe(viewLifecycleOwner) { newListComic ->
+            listComicsAdapter.setStateProgressBar(false)
             if (listComicsAdapter.currentList.isEmpty()) {
                 listComicsAdapter.submitList(newListComic)
             } else {
@@ -71,8 +73,9 @@ class ListComicsFragment : Fragment() {
                 val totalItemCount = recyclerView.layoutManager?.itemCount
                 val lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
                 if (totalItemCount == lastVisibleItemPosition + 1) {
+                    listComicsAdapter.setStateProgressBar(true)
                     listComicsViewModel.getPublishedMarvelComics(
-                        nowData = "1949-01-01,2022-04-05",
+                        dataRange = "1949-01-01,2022-04-05",
                         offset = totalItemCount - 1
                     )
                 }

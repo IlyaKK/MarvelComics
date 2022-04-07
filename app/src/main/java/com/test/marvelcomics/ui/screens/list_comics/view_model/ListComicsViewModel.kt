@@ -13,8 +13,8 @@ class ListComicsViewModel : ViewModel(), ListComicsContract.ViewModel {
     private val _listMarvelComicsLiveData = MutableLiveData<List<Comic>>()
     override val listMarvelComicsLiveData: LiveData<List<Comic>> = _listMarvelComicsLiveData
 
-    override fun getPublishedMarvelComics(nowData: String, offset: Int) {
-        marvelComicsRepository.getPublishedMarvelComics(nowData, offset) {
+    override fun getPublishedMarvelComics(dataRange: String, offset: Int) {
+        marvelComicsRepository.getPublishedMarvelComics(dataRange, offset) {
             _listMarvelComicsLiveData.postValue(it)
         }
     }
