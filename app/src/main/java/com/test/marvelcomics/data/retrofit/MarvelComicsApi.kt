@@ -15,6 +15,7 @@ interface MarvelComicsApi {
         @Query("dateRange") nowDate: String,
         @Query("formatType") formatType: String,
         @Query("orderBy") orderBy: String,
+        @Query("offset") offset: Int,
         @Query("ts") timeStamp: String,
         @Query("apikey") apiKey: String,
         @Query("hash") hash: String,

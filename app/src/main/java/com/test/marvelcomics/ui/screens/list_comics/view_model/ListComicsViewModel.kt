@@ -10,12 +10,13 @@ import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 class ListComicsViewModel : ViewModel(), ListComicsContract.ViewModel {
     private val marvelComicsRepository: MarvelComicsRepository by lazy { NetworkMarvelComicsRepositoryImpl() }
 
-    private val _onGetListMarvelComics = MutableLiveData<List<Comic>>()
-    val onGetListMarvelComics: LiveData<List<Comic>> = _onGetListMarvelComics
+    private val _listMarvelComicsLiveData = MutableLiveData<List<Comic>>()
+    override val listMarvelComicsLiveData: LiveData<List<Comic>> = _listMarvelComicsLiveData
 
-    override fun getPublishedMarvelComics(nowData: String) {
-        marvelComicsRepository.getPublishedMarvelComics(nowData) {
-            _onGetListMarvelComics.postValue(it.results)
+    override fun getPublishedMarvelComics(nowData: String, offset: Int) {
+        marvelComicsRepository.getPublishedMarvelComics(nowData, offset) {
+            _listMarvelComicsLiveData.postValue(it)
         }
     }
+
 }

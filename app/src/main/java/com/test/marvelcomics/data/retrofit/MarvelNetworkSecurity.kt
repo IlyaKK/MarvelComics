@@ -1,4 +1,4 @@
-package com.test.marvelcomics.data
+package com.test.marvelcomics.data.retrofit
 
 import com.test.marvelcomics.BuildConfig
 import java.math.BigInteger

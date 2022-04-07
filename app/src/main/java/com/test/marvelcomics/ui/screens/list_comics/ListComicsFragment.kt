@@ -13,13 +13,14 @@ import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdap
 import com.test.marvelcomics.ui.screens.list_comics.view_model.ListComicsViewModel
 
 class ListComicsFragment : Fragment() {
-    private val listComicsAdapter = ListComicsAdapter()
-
-    private lateinit var binding: ListComicsFragmentBinding
-
     companion object {
         fun newInstance() = ListComicsFragment()
     }
+
+    private val listComicsAdapter by lazy { ListComicsAdapter() }
+    private lateinit var linearLayoutManager: LinearLayoutManager
+
+    private lateinit var binding: ListComicsFragmentBinding
 
     private lateinit var listComicsViewModel: ListComicsViewModel
 
@@ -39,16 +40,43 @@ class ListComicsFragment : Fragment() {
     }
 
     private fun initializeListComicsRecycleView() {
-        binding.listsComicsRecyclerView.layoutManager =
-            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        linearLayoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        binding.listsComicsRecyclerView.layoutManager = linearLayoutManager
         binding.listsComicsRecyclerView.adapter = listComicsAdapter
+
     }
 
     private fun initializeReceiveListMarvelComics() {
-        listComicsViewModel.getPublishedMarvelComics(nowData = "1949-01-01,2022-04-05")
-        listComicsViewModel.onGetListMarvelComics.observe(viewLifecycleOwner) {
-            listComicsAdapter.setData(it)
+        listComicsViewModel.getPublishedMarvelComics(
+            nowData = "1949-01-01,2022-04-05",
+        )
+
+        initializeScrollingRecyclerView()
+        listComicsViewModel.listMarvelComicsLiveData.observe(viewLifecycleOwner) { newListComic ->
+            if (listComicsAdapter.currentList.isEmpty()) {
+                listComicsAdapter.submitList(newListComic)
+            } else {
+                val listComics = listComicsAdapter.currentList.toMutableList()
+                listComics.addAll(newListComic)
+                listComicsAdapter.submitList(listComics)
+            }
         }
     }
 
+    private fun initializeScrollingRecyclerView() {
+        binding.listsComicsRecyclerView.addOnScrollListener(object :
+            RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val totalItemCount = recyclerView.layoutManager?.itemCount
+                val lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
+                if (totalItemCount == lastVisibleItemPosition + 1) {
+                    listComicsViewModel.getPublishedMarvelComics(
+                        nowData = "1949-01-01,2022-04-05",
+                        offset = totalItemCount - 1
+                    )
+                }
+            }
+        })
+    }
 }

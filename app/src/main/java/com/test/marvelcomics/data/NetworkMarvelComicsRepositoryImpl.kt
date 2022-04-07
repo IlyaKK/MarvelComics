@@ -1,7 +1,8 @@
 package com.test.marvelcomics.data
 
 import com.test.marvelcomics.data.retrofit.MarvelComicsApi
-import com.test.marvelcomics.domain.entity.Comics
+import com.test.marvelcomics.data.retrofit.MarvelNetworkSecurity
+import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.domain.entity.Date
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 import retrofit2.Call
@@ -20,19 +21,21 @@ class NetworkMarvelComicsRepositoryImpl : MarvelComicsRepository {
 
     override fun getPublishedMarvelComics(
         nowData: String,
-        callback: (Comics) -> Unit
+        offset: Int,
+        callback: (List<Comic>) -> Unit
     ) {
         val marvelNetworkSecurity = MarvelNetworkSecurity()
         api.getPublishedComics(
             nowDate = nowData,
             formatType = "comic",
             orderBy = "-onsaleDate",
+            offset = offset,
             timeStamp = marvelNetworkSecurity.timeStamp,
             apiKey = marvelNetworkSecurity.publicMarvelApiKey,
             hash = marvelNetworkSecurity.hashMd5ForMarvelRequest,
         ).enqueue(object : Callback<Date> {
             override fun onResponse(call: Call<Date>, response: Response<Date>) {
-                response.body()?.let { callback(it.data) }
+                response.body()?.let { callback(it.data.results) }
             }
 
             override fun onFailure(call: Call<Date>, t: Throwable) {
