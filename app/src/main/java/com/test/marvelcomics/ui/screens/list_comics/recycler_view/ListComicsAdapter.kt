@@ -66,7 +66,12 @@ class ListComicsAdapter :
         listenerProgressBar?.setLoadState(isLoadState)
     }
 
+    fun getStateProgressBar(): Boolean? {
+        return listenerProgressBar?.getLoadState()
+    }
+
     interface ListenerProgressBar {
         fun setLoadState(isLoadState: Boolean)
+        fun getLoadState(): Boolean
     }
 }

@@ -7,7 +7,7 @@ import com.test.marvelcomics.databinding.DownloadViewBinding
 
 class DownloadViewHolder(private val binding: DownloadViewBinding) :
     RecyclerView.ViewHolder(binding.root) {
-
+    var stateLoadingProgressBar: Boolean = false
     fun getListenerProgressBar(): ListComicsAdapter.ListenerProgressBar {
         return (object : ListComicsAdapter.ListenerProgressBar {
             override fun setLoadState(isLoadState: Boolean) {
@@ -16,6 +16,11 @@ class DownloadViewHolder(private val binding: DownloadViewBinding) :
                 } else {
                     binding.downloadProgressBar.visibility = INVISIBLE
                 }
+                stateLoadingProgressBar = isLoadState
+            }
+
+            override fun getLoadState(): Boolean {
+                return stateLoadingProgressBar
             }
         })
     }

@@ -72,7 +72,8 @@ class ListComicsFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
                 val totalItemCount = recyclerView.layoutManager?.itemCount
                 val lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
-                if (totalItemCount == lastVisibleItemPosition + 1) {
+                val progressBarState = listComicsAdapter.getStateProgressBar()
+                if (totalItemCount == lastVisibleItemPosition + 1 && progressBarState != true) {
                     listComicsAdapter.setStateProgressBar(true)
                     listComicsViewModel.getPublishedMarvelComics(
                         dataRange = "1949-01-01,2022-04-05",
