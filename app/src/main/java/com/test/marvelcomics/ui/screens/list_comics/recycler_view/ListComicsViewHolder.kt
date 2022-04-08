@@ -10,9 +10,13 @@ import com.test.marvelcomics.domain.entity.Comic
 class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(oneComic: Comic) {
+    fun bind(oneComic: Comic, listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick) {
         val nameWriters: StringBuilder = StringBuilder()
         val namePencilers: StringBuilder = StringBuilder()
+
+        binding.oneComicInListCardView.setOnClickListener {
+            listenerCardComicClick.onComicCardClickListener(oneComic)
+        }
 
         binding.apply {
             nameComicTextView.text = oneComic.title

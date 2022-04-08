@@ -12,6 +12,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class NetworkMarvelComicsRepositoryImpl : MarvelComicsRepository {
+    private var dataCashComics: MutableList<Comic> = mutableListOf()
+
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://gateway.marvel.com/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -35,7 +37,10 @@ class NetworkMarvelComicsRepositoryImpl : MarvelComicsRepository {
             hash = marvelNetworkSecurity.hashMd5ForMarvelRequest,
         ).enqueue(object : Callback<Date> {
             override fun onResponse(call: Call<Date>, response: Response<Date>) {
-                response.body()?.let { callback(it.data.results) }
+                response.body()?.let {
+                    dataCashComics.addAll(it.data.results)
+                }
+                callback(dataCashComics.toList())
             }
 
             override fun onFailure(call: Call<Date>, t: Throwable) {

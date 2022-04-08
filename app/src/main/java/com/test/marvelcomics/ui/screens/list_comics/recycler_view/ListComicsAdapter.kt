@@ -14,6 +14,7 @@ const val COMICS_TYPE = 1
 class ListComicsAdapter :
     ListAdapter<Comic, RecyclerView.ViewHolder>(ComicsItemCallBack()) {
     private var listenerProgressBar: ListenerProgressBar? = null
+    private lateinit var listenerCardComicClick: ListenerCardComicClick
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -38,10 +39,10 @@ class ListComicsAdapter :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ListComicsViewHolder -> {
-                holder.bind(getItem(position))
+                holder.bind(getItem(position), listenerCardComicClick)
             }
             is DownloadViewHolder -> {
-                listenerProgressBar = holder.getListenerProgressBar()
+                listenerProgressBar = holder.initializeListenerProgressBar()
             }
         }
     }
@@ -70,8 +71,16 @@ class ListComicsAdapter :
         return listenerProgressBar?.getLoadState()
     }
 
+    fun setOnCardClickListener(listenerCardComicClick: ListenerCardComicClick) {
+        this.listenerCardComicClick = listenerCardComicClick
+    }
+
     interface ListenerProgressBar {
         fun setLoadState(isLoadState: Boolean)
         fun getLoadState(): Boolean
+    }
+
+    interface ListenerCardComicClick {
+        fun onComicCardClickListener(comic: Comic)
     }
 }
