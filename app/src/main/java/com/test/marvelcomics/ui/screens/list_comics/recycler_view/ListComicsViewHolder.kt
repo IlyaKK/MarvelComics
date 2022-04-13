@@ -5,7 +5,7 @@ import android.view.View.VISIBLE
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.test.marvelcomics.databinding.ListComicsItemBinding
-import com.test.marvelcomics.domain.entity.Comic
+import com.test.marvelcomics.domain.entity.api.Comic
 
 class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -20,7 +20,7 @@ class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
 
         binding.apply {
             nameComicTextView.text = oneComic.title
-            oneComic.creators.items.forEach {
+            oneComic.creatorsComic.listCreatorsComic.forEach {
                 when (it.role) {
                     "writer" -> {
                         if (nameWriters.isEmpty()) {
@@ -64,7 +64,7 @@ class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
 
             Glide.with(root)
                 .load(
-                    oneComic.thumbnail.path.replace("http", "https")
+                    oneComic.imagePath.path.replace("http", "https")
                             + "/portrait_medium.jpg"
                 )
                 .into(pictureComicImageView)
