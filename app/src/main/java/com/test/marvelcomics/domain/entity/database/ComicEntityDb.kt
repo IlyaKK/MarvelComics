@@ -12,9 +12,10 @@ data class ComicEntityDb(
     val description: String?,
     val format: String?,
     val pageCount: Int?,
-    val text: String?,
+    val solicitText: String?,
+    val previewText: String?,
     val urlDetail: String?,
     val saleDay: String?,
     val price: Double?,
-    val imagePath: String?
+    val imagePath: String
 )

@@ -2,6 +2,7 @@ package com.test.marvelcomics.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.test.marvelcomics.domain.entity.database.*
 
 @Database(

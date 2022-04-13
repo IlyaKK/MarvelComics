@@ -6,7 +6,7 @@ import com.test.marvelcomics.R
 import com.test.marvelcomics.data.DataBaseComicsRepository
 import com.test.marvelcomics.data.NetworkMarvelComicsRepository
 import com.test.marvelcomics.data.repositoryApp
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.ui.screens.list_comics.ListComicsFragment
 
 class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {

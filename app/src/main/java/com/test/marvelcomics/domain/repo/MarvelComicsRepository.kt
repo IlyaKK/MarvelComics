@@ -1,6 +1,6 @@
 package com.test.marvelcomics.domain.repo
 
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 
 interface MarvelComicsRepository {
     fun getComicsData(

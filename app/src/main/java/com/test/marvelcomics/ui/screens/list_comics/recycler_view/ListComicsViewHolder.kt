@@ -5,45 +5,38 @@ import android.view.View.VISIBLE
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.test.marvelcomics.databinding.ListComicsItemBinding
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 
 class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(oneComic: Comic, listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick) {
+    fun bind(comic: Comic, listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick) {
         val nameWriters: StringBuilder = StringBuilder()
-        val namePencilers: StringBuilder = StringBuilder()
+        val namePainters: StringBuilder = StringBuilder()
 
         binding.oneComicInListCardView.setOnClickListener {
-            listenerCardComicClick.onComicCardClickListener(oneComic)
+            listenerCardComicClick.onComicCardClickListener(comic)
         }
 
         binding.apply {
-            nameComicTextView.text = oneComic.title
-            oneComic.creatorsComic.listCreatorsComic.forEach {
-                when (it.role) {
-                    "writer" -> {
-                        if (nameWriters.isEmpty()) {
-                            nameWriters.append(it.name)
-                        } else {
-                            nameWriters.append(
-                                ", " + it.name
-                            )
-                        }
+            nameComicTextView.text = comic.title
+            comic.writers?.forEach {
+                if (nameWriters.isEmpty()) {
+                    nameWriters.append(it)
+                } else {
+                    nameWriters.append(
+                        ", $it"
+                    )
+                }
+            }
 
-                    }
-                    "penciler (cover)",
-                    "penciler",
-                    "penciller (cover)",
-                    "penciller" -> {
-                        if (namePencilers.isEmpty())
-                            namePencilers.append(it.name)
-                        else {
-                            namePencilers.append(
-                                ", " + it.name
-                            )
-                        }
-                    }
+            comic.painters?.forEach {
+                if (namePainters.isEmpty())
+                    namePainters.append(it)
+                else {
+                    namePainters.append(
+                        ", $it"
+                    )
                 }
             }
 
@@ -53,18 +46,18 @@ class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
                 titleWriterTextView.visibility = VISIBLE
             }
 
-            if (namePencilers.isEmpty()) {
+            if (namePainters.isEmpty()) {
                 titlePencilerTextView.visibility = GONE
             } else {
                 titlePencilerTextView.visibility = VISIBLE
             }
 
             nameWriterTextView.text = nameWriters
-            namePencilerTextView.text = namePencilers
+            namePencilerTextView.text = namePainters
 
             Glide.with(root)
                 .load(
-                    oneComic.imagePath.path.replace("http", "https")
+                    (comic.imagePath.replace("http", "https"))
                             + "/portrait_medium.jpg"
                 )
                 .into(pictureComicImageView)

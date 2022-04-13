@@ -2,7 +2,7 @@ package com.test.marvelcomics.domain.entity.api
 
 import com.google.gson.annotations.SerializedName
 
-data class Data(
+data class DataApi(
     @SerializedName("data")
-    val dataComics: Comics
+    val dataComicsApi: ComicsApi
 )

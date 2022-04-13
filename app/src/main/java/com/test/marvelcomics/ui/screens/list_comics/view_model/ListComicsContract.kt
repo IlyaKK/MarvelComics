@@ -1,7 +1,7 @@
 package com.test.marvelcomics.ui.screens.list_comics.view_model
 
 import androidx.lifecycle.LiveData
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 
 class ListComicsContract {
     interface ViewModel {

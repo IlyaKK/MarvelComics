@@ -1,5 +1,5 @@
 package com.test.marvelcomics.domain.entity.api
 
-data class Image(
+data class ImageApi(
     val path: String
 )

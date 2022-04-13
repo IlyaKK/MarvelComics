@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.test.marvelcomics.data.DataBaseComicsRepository
 import com.test.marvelcomics.data.MarvelComicsRepositoryImpl
 import com.test.marvelcomics.data.NetworkMarvelComicsRepository
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 
 class ListComicsViewModel(

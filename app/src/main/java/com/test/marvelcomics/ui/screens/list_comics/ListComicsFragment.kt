@@ -6,13 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.test.marvelcomics.data.DataBaseComicsRepository
 import com.test.marvelcomics.data.NetworkMarvelComicsRepository
 import com.test.marvelcomics.databinding.ListComicsFragmentBinding
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdapter
 import com.test.marvelcomics.ui.screens.list_comics.view_model.ListComicsViewModel
 

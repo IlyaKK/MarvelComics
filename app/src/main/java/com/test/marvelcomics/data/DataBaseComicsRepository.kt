@@ -12,7 +12,7 @@ class DataBaseComicsRepository(
 ) {
 
     fun getComics(): List<ComicEntityDb> {
-        return emptyList()
+        return comicDao.getComics()
     }
 
     fun insertComics(comic: ComicEntityDb) {
@@ -20,6 +20,10 @@ class DataBaseComicsRepository(
         if (!listIdComic.contains(comic.id)) {
             comicDao.insert(comic)
         }
+    }
+
+    fun getWritersOfComic(idComic: Int): List<WriterEntityDb> {
+        return writerJoinDao.getWritersForComic(idComic)
     }
 
     fun insertWriters(idComic: Int, writers: List<WriterEntityDb>) {
@@ -45,6 +49,11 @@ class DataBaseComicsRepository(
             }
         }
         if (count == 0) writerJoinDao.insert(ComicWriterJoinDb(0, idComic, idWriter))
+    }
+
+
+    fun getPaintersOfComic(idComic: Int): List<PainterEntityDb> {
+        return painterJoinDao.getPaintersForComic(idComic)
     }
 
     fun insertPainters(idComic: Int, painters: List<PainterEntityDb>) {

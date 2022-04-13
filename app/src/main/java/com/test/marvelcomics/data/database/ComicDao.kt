@@ -14,6 +14,12 @@ interface ComicDao {
     @Query("SELECT id FROM comic")
     fun getComicsId(): List<Int>
 
+    @Query(
+        "SELECT * FROM comic " +
+                "ORDER BY saleDay DESC"
+    )
+    fun getComics(): List<ComicEntityDb>
+
     @Delete
     fun delete(comic: ComicEntityDb)
 }

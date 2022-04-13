@@ -2,19 +2,19 @@ package com.test.marvelcomics.domain.entity.api
 
 import com.google.gson.annotations.SerializedName
 
-data class Comic(
+data class ComicApi(
     val id: Int,
     val title: String,
     val issueNumber: Int,
     val description: String?,
     val format: String,
-    val pageCount: Int,
-    val text: String?,
-    val urls: List<UrlsAboutComic>,
-    val dates: List<DatesOfComic>,
-    val prices: List<Price>,
+    val pageCount: Int?,
+    val textObjects: List<AdditionalDescriptionComic>?,
+    val urls: List<UrlsAboutComicApi>,
+    val dates: List<DatesOfComicApi>,
+    val prices: List<PriceApi>,
     @SerializedName("thumbnail")
-    val imagePath: Image,
+    val imageApiPath: ImageApi,
     @SerializedName("creators")
-    val creatorsComic: CreatorsComic
+    val creatorsComicApi: CreatorsComicApi
 )

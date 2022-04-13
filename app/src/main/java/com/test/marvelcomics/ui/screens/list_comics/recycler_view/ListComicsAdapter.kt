@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.test.marvelcomics.databinding.DownloadViewBinding
 import com.test.marvelcomics.databinding.ListComicsItemBinding
-import com.test.marvelcomics.domain.entity.api.Comic
+import com.test.marvelcomics.domain.entity.Comic
 
 const val LOAD_TYPE = 0
 const val COMICS_TYPE = 1

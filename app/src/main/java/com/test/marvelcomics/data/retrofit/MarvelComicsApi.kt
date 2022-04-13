@@ -1,6 +1,6 @@
 package com.test.marvelcomics.data.retrofit
 
-import com.test.marvelcomics.domain.entity.api.Data
+import com.test.marvelcomics.domain.entity.api.DataApi
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -15,5 +15,5 @@ interface MarvelComicsApi {
         @Query("ts") timeStamp: String,
         @Query("apikey") apiKey: String,
         @Query("hash") hash: String,
-    ): Call<Data>
+    ): Call<DataApi>
 }

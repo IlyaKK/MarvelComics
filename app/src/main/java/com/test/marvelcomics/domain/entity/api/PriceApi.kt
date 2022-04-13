@@ -1,6 +1,6 @@
 package com.test.marvelcomics.domain.entity.api
 
-data class UrlsAboutComic(
+data class PriceApi(
     val type: String,
-    val url: String
+    val price: Double
 )
