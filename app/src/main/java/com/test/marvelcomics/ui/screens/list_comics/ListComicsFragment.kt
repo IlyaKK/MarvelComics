@@ -74,8 +74,8 @@ class ListComicsFragment(
         binding.listsComicsRecyclerView.adapter = listComicsAdapter
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
-                override fun onComicCardClickListener(comic: Comic) {
-                    controller?.displayComicDetail(comic)
+                override fun onComicCardClickListener() {
+                    controller?.displayComicDetail()
                 }
             })
     }
@@ -124,6 +124,6 @@ class ListComicsFragment(
     }
 
     internal interface Controller {
-        fun displayComicDetail(comic: Comic?)
+        fun displayComicDetail()
     }
 }

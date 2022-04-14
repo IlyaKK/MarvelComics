@@ -16,21 +16,30 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.container,
-                    ListComicsFragment.newInstance(repositoryApp.comicRepository)
-                )
-                .commit()
+            repositoryApp.comicRepository?.let {
+                ListComicsFragment.newInstance(it)
+            }?.let {
+                supportFragmentManager.beginTransaction()
+                    .replace(
+                        R.id.container,
+                        it
+                    )
+                    .commit()
+            }
         }
     }
 
-    override fun displayComicDetail(comic: Comic?) {
+    override fun displayComicDetail() {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.container,
-                ComicDetailFragment.newInstance(comic)
+                ComicDetailFragment.newInstance()
             )
             .commit()
+    }
+
+    override fun onDestroy() {
+        repositoryApp.comicRepository = null
+        super.onDestroy()
     }
 }

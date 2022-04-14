@@ -15,7 +15,7 @@ class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
         val namePainters: StringBuilder = StringBuilder()
 
         binding.oneComicInListCardView.setOnClickListener {
-            listenerCardComicClick?.onComicCardClickListener(comic)
+            listenerCardComicClick?.onComicCardClickListener()
         }
 
         binding.apply {

@@ -81,7 +81,7 @@ class ListComicsAdapter :
     }
 
     interface ListenerCardComicClick {
-        fun onComicCardClickListener(comic: Comic)
+        fun onComicCardClickListener()
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
