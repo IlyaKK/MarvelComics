@@ -1,4 +1,4 @@
-package com.test.marvelcomics.ui.screens.list_comics.view_model
+package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
 import androidx.lifecycle.LiveData
 import com.test.marvelcomics.domain.entity.Comic

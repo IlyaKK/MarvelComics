@@ -10,12 +10,12 @@ import com.test.marvelcomics.domain.entity.Comic
 class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(comic: Comic, listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick) {
+    fun bind(comic: Comic, listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick?) {
         val nameWriters: StringBuilder = StringBuilder()
         val namePainters: StringBuilder = StringBuilder()
 
         binding.oneComicInListCardView.setOnClickListener {
-            listenerCardComicClick.onComicCardClickListener(comic)
+            listenerCardComicClick?.onComicCardClickListener(comic)
         }
 
         binding.apply {

@@ -1,4 +1,4 @@
-package com.test.marvelcomics.ui.screens.list_comics.view_model
+package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,16 +10,14 @@ import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 
 class ListComicsViewModel(
-    private val networkRepository: NetworkMarvelComicsRepository,
-    private val databaseRepository: DataBaseComicsRepository
+    private val comicsRepository: MarvelComicsRepository
 ) : ViewModel(), ListComicsContract.ViewModel {
-    private val marvelComicsRepository: MarvelComicsRepository by lazy { MarvelComicsRepositoryImpl(networkRepository, databaseRepository) }
 
     private val _listMarvelComicsLiveData = MutableLiveData<List<Comic>>()
     override val listMarvelComicsLiveData: LiveData<List<Comic>> = _listMarvelComicsLiveData
 
     override fun getPublishedMarvelComics(stateInternet: Boolean, dataRange: String, offset: Int) {
-        marvelComicsRepository.getComicsData(stateInternet, dataRange, offset) {
+        comicsRepository.getComicsData(stateInternet, dataRange, offset) {
             _listMarvelComicsLiveData.postValue(it)
         }
     }

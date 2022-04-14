@@ -82,7 +82,7 @@ class MarvelComicsRepositoryImpl(
                 listComics.add(comic)
             }
         }
-        return listComics
+        return listComics.toList()
     }
 
     private fun saveInDatabase(comicsApiList: List<ComicApi>) {

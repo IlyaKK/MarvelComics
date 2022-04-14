@@ -7,6 +7,7 @@ import com.test.marvelcomics.data.DataBaseComicsRepository
 import com.test.marvelcomics.data.NetworkMarvelComicsRepository
 import com.test.marvelcomics.data.repositoryApp
 import com.test.marvelcomics.domain.entity.Comic
+import com.test.marvelcomics.ui.screens.detail_comic.ComicDetailFragment
 import com.test.marvelcomics.ui.screens.list_comics.ListComicsFragment
 
 class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
@@ -14,19 +15,22 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        val networkRepository: NetworkMarvelComicsRepository = repositoryApp.comicNetworkRepo
-        val databaseRepository: DataBaseComicsRepository = repositoryApp.comicDatabaseRepo
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.container,
-                    ListComicsFragment.newInstance(networkRepository, databaseRepository)
+                    ListComicsFragment.newInstance(repositoryApp.comicRepository)
                 )
                 .commit()
         }
     }
 
     override fun displayComicDetail(comic: Comic?) {
-
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.container,
+                ComicDetailFragment.newInstance(comic)
+            )
+            .commit()
     }
 }

@@ -1,5 +1,9 @@
 package com.test.marvelcomics.domain.entity
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Comic(
     val id: Int,
     val title: String,
@@ -13,4 +17,4 @@ data class Comic(
     val imagePath: String,
     val writers: List<String>?,
     val painters: List<String>?
-)
+) : Parcelable

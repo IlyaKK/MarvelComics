@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import com.test.marvelcomics.data.database.*
 import com.test.marvelcomics.data.retrofit.MarvelComicsApi
+import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -48,7 +49,7 @@ class RepositoryApp : Application() {
 
     private val api: MarvelComicsApi = retrofit.create(MarvelComicsApi::class.java)
 
-    val comicDatabaseRepo: DataBaseComicsRepository by lazy {
+    private val comicDatabaseRepo: DataBaseComicsRepository by lazy {
         DataBaseComicsRepository(
             comicDao,
             writerDao,
@@ -57,7 +58,14 @@ class RepositoryApp : Application() {
             comicPainterJoinDao
         )
     }
-    val comicNetworkRepo: NetworkMarvelComicsRepository by lazy { NetworkMarvelComicsRepository(api) }
+    private val comicNetworkRepo: NetworkMarvelComicsRepository by lazy {
+        NetworkMarvelComicsRepository(
+            api
+        )
+    }
+    val comicRepository: MarvelComicsRepository by lazy {
+        MarvelComicsRepositoryImpl(comicNetworkRepo, comicDatabaseRepo)
+    }
 }
 
 val Context.repositoryApp

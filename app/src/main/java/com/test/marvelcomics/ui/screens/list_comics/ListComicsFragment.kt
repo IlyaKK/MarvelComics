@@ -6,25 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.test.marvelcomics.data.DataBaseComicsRepository
-import com.test.marvelcomics.data.NetworkMarvelComicsRepository
 import com.test.marvelcomics.databinding.ListComicsFragmentBinding
 import com.test.marvelcomics.domain.entity.Comic
+import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdapter
-import com.test.marvelcomics.ui.screens.list_comics.view_model.ListComicsViewModel
+import com.test.marvelcomics.ui.view_models.ListComicsViewModelFactory
+import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
 
 class ListComicsFragment(
-    private val networkRepository: NetworkMarvelComicsRepository,
-    private val databaseRepository: DataBaseComicsRepository
+    private val comicRepository: MarvelComicsRepository
 ) : Fragment() {
     companion object {
         fun newInstance(
-            networkRepository: NetworkMarvelComicsRepository,
-            databaseRepository: DataBaseComicsRepository
+            comicRepository: MarvelComicsRepository
         ): ListComicsFragment {
-            return ListComicsFragment(networkRepository, databaseRepository)
+            return ListComicsFragment(comicRepository)
         }
     }
 
@@ -34,13 +33,13 @@ class ListComicsFragment(
     private lateinit var binding: ListComicsFragmentBinding
 
     private val listComicsViewModel: ListComicsViewModel by lazy {
-        ListComicsViewModel(
-            networkRepository,
-            databaseRepository
-        )
+        ViewModelProvider(
+            this,
+            ListComicsViewModelFactory(comicRepository)
+        ).get(ListComicsViewModel::class.java)
     }
 
-    private lateinit var controller: Controller
+    private var controller: Controller? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -76,7 +75,7 @@ class ListComicsFragment(
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
                 override fun onComicCardClickListener(comic: Comic) {
-                    controller.displayComicDetail(comic)
+                    controller?.displayComicDetail(comic)
                 }
             })
     }
@@ -117,6 +116,11 @@ class ListComicsFragment(
 
     private fun checkInternet(): Boolean {
         return true
+    }
+
+    override fun onDestroy() {
+        controller = null
+        super.onDestroy()
     }
 
     internal interface Controller {

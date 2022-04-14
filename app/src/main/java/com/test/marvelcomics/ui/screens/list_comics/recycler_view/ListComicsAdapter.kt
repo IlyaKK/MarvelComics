@@ -14,7 +14,7 @@ const val COMICS_TYPE = 1
 class ListComicsAdapter :
     ListAdapter<Comic, RecyclerView.ViewHolder>(ComicsItemCallBack()) {
     private var listenerProgressBar: ListenerProgressBar? = null
-    private lateinit var listenerCardComicClick: ListenerCardComicClick
+    private var listenerCardComicClick: ListenerCardComicClick? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -82,5 +82,11 @@ class ListComicsAdapter :
 
     interface ListenerCardComicClick {
         fun onComicCardClickListener(comic: Comic)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        listenerCardComicClick = null
+        listenerProgressBar = null
+        super.onDetachedFromRecyclerView(recyclerView)
     }
 }
