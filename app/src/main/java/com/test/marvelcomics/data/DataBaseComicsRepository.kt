@@ -11,8 +11,12 @@ class DataBaseComicsRepository(
     private val painterJoinDao: ComicPainterJoinDao
 ) {
 
-    fun getComics(): List<ComicEntityDb> {
-        return comicDao.getComics()
+    fun getComics(dataRange: String): List<ComicEntityDb> {
+        val addStrForDate = "T00:00:00-0400"
+        val massiveDataRange = dataRange.split(",", limit = 2)
+        val startRange = massiveDataRange[0] + addStrForDate
+        val endRange = massiveDataRange[1] + addStrForDate
+        return comicDao.getComics(startRange, endRange)
     }
 
     fun insertComics(comic: ComicEntityDb) {

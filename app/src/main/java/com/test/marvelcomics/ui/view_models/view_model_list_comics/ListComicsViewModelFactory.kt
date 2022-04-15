@@ -1,9 +1,8 @@
-package com.test.marvelcomics.ui.view_models
+package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
-import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
 
 class ListComicsViewModelFactory(private val comicsRepository: MarvelComicsRepository) :
     ViewModelProvider.Factory {

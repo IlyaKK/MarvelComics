@@ -63,8 +63,9 @@ class RepositoryApp : Application() {
             api
         )
     }
-    var comicRepository: MarvelComicsRepository? =
+    val comicRepository: MarvelComicsRepository by lazy {
         MarvelComicsRepositoryImpl(comicNetworkRepo, comicDatabaseRepo)
+    }
 }
 
 val Context.repositoryApp

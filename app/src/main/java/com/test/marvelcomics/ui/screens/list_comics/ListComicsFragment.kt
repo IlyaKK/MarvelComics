@@ -13,7 +13,8 @@ import com.test.marvelcomics.databinding.ListComicsFragmentBinding
 import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdapter
-import com.test.marvelcomics.ui.view_models.ListComicsViewModelFactory
+import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModelFactory
+import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
 
 class ListComicsFragment(
@@ -36,7 +37,11 @@ class ListComicsFragment(
         ViewModelProvider(
             this,
             ListComicsViewModelFactory(comicRepository)
-        ).get(ListComicsViewModel::class.java)
+        )[ListComicsViewModel::class.java]
+    }
+
+    private val sharedComicViewModel: SharedComicViewModel by lazy {
+        ViewModelProvider(requireActivity())[SharedComicViewModel::class.java]
     }
 
     private var controller: Controller? = null
@@ -64,7 +69,7 @@ class ListComicsFragment(
         initializeReceiveListMarvelComics()
 
         if (savedInstanceState == null) {
-            getComics("1949-01-01, 2022-04-05")
+            getComics("1949-01-01,2022-04-05")
         }
     }
 
@@ -74,7 +79,8 @@ class ListComicsFragment(
         binding.listsComicsRecyclerView.adapter = listComicsAdapter
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
-                override fun onComicCardClickListener() {
+                override fun onComicCardClickListener(comic: Comic) {
+                    sharedComicViewModel.comicMutableLiveData.value = comic
                     controller?.displayComicDetail()
                 }
             })
@@ -99,7 +105,7 @@ class ListComicsFragment(
                     val progressBarLoadState = listComicsAdapter.getStateProgressBar()
                     if (totalItemCount == lastVisibleItemPosition + 1 && progressBarLoadState != true) {
                         listComicsAdapter.setStateProgressBar(true)
-                        getComics("1949-01-01, 2022-04-05", listComicsAdapter.currentList.size)
+                        getComics("1949-01-01,2022-04-05", listComicsAdapter.currentList.size)
                     }
                 }
             })

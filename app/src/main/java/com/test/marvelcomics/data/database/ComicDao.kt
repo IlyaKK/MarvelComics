@@ -16,9 +16,10 @@ interface ComicDao {
 
     @Query(
         "SELECT * FROM comic " +
+                "WHERE saleDay <= :endRange AND saleDay >= :startRange " +
                 "ORDER BY saleDay DESC"
     )
-    fun getComics(): List<ComicEntityDb>
+    fun getComics(startRange: String, endRange: String): List<ComicEntityDb>
 
     @Delete
     fun delete(comic: ComicEntityDb)
