@@ -7,7 +7,6 @@ import com.test.marvelcomics.domain.entity.database.ComicEntityDb
 import com.test.marvelcomics.domain.entity.database.PainterEntityDb
 import com.test.marvelcomics.domain.entity.database.WriterEntityDb
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -42,6 +41,8 @@ class MarvelComicsRepositoryImpl(
         }
     }
 
+    private fun Int.formatDayOrMonth() = "%02d".format(this)
+
     private fun getFromDataBase(dataRange: String): List<Comic> {
         val listComics: MutableList<Comic> = mutableListOf()
         val listComicDatabase = comicDatabaseRepo.getComics(dataRange)
@@ -49,31 +50,25 @@ class MarvelComicsRepositoryImpl(
             comicDb.apply {
                 val listWriters: MutableList<String> = mutableListOf()
                 val listPainters: MutableList<String> = mutableListOf()
-                val descriptionComic: String? =
-                    if ((description == null || description == "") && (solicitText == null || solicitText == "") && (previewText == null || previewText == "")) {
-                        ""
-                    } else if ((description != null || description != "") && (solicitText == null || solicitText == "") && (previewText == null || previewText == "")) {
+                val descriptionComic: String =
+                    if (description != "" && description != null) {
                         description
-                    } else if ((description != null || description != "") && (solicitText != null || solicitText != "") && (previewText == null || previewText == "")) {
-                        solicitText
-                    } else if ((description != null || description != "") && (solicitText == null || solicitText == "") && (previewText != null || previewText != "")) {
-                        previewText
-                    } else if ((description != null || description != "") && (solicitText != null || solicitText != "") && (previewText != null || previewText != "")) {
-                        solicitText
-                    } else if ((description == null || description == "") && (solicitText == null || solicitText == "") && (previewText != null || previewText != "")) {
-                        previewText
-                    } else if ((description == null || description == "") && (solicitText != null || solicitText != "") && (previewText == null || previewText == "")) {
-                        solicitText
-                    } else ""
+                    } else null
+                        ?: if (solicitText != "" && solicitText != null) {
+                            solicitText
+                        } else null
+                            ?: if (previewText != "" && previewText != null) {
+                                previewText
+                            } else null
+                                ?: ""
 
                 val saleDayComic: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
                     val zonedDateTime = ZonedDateTime.parse(saleDay, pattern)
-                    "${zonedDateTime.dayOfMonth}.${zonedDateTime.month}.${zonedDateTime.year}"
+                    "${(zonedDateTime.dayOfMonth).formatDayOrMonth()}.${(zonedDateTime.monthValue).formatDayOrMonth()}.${zonedDateTime.year}"
                 } else {
                     ""
                 }
-
 
                 comicDatabaseRepo.getWritersOfComic(id).forEach {
                     listWriters.add(it.name)

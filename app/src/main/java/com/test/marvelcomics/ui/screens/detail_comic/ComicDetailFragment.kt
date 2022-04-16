@@ -1,8 +1,12 @@
 package com.test.marvelcomics.ui.screens.detail_comic
 
+import android.content.Intent
+import android.content.Intent.ACTION_VIEW
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -36,20 +40,37 @@ class ComicDetailFragment : Fragment() {
         sharedComicViewModel.comicLiveData.observe(viewLifecycleOwner) { comic ->
             binding.apply {
                 titleComicTextView.text = comic.title
-                descriptionComicTextView.text = comic.description
-                issueNumberComicTextView.text = comic.issueNumber.toString()
+                if (comic.description.isNotEmpty())
+                    descriptionComicTextView.text = comic.description
+                else {
+                    descriptionComicTextView.visibility = GONE
+                    descriptionTitleTextView.visibility = GONE
+                }
+                if (comic.issueNumber != 0) {
+                    issueNumberComicTextView.text = comic.issueNumber.toString()
+                } else {
+                    issueNumberComicTextView.visibility = GONE
+                    issueNumberTitleTextView.visibility = GONE
+                }
                 formatComicTextView.text = comic.format
                 pageCountComicTextView.text = comic.pageCount.toString()
                 saleDayComicTextView.text = comic.saleDay
 
-                comic.writers?.forEach {
-                    if (writersComicTextView.text.isEmpty()) {
-                        writersComicTextView.text = it
-                    } else {
-                        val oldWritersComic: String = writersComicTextView.text as String
-                        val newWritersComic = "$oldWritersComic, $it"
-                        writersComicTextView.text = newWritersComic
+                comic.writers?.let {
+                    it.forEach { nameWriter ->
+                        if (writersComicTextView.text.isEmpty()) {
+                            writersComicTextView.text = nameWriter
+                        } else {
+                            val oldWritersComic: String = writersComicTextView.text as String
+                            val newWritersComic = "$oldWritersComic, $nameWriter"
+                            writersComicTextView.text = newWritersComic
+                        }
                     }
+                }
+
+                if (writersComicTextView.text.isEmpty()) {
+                    writersComicTextView.visibility = GONE
+                    writersComicTitleTextView.visibility = GONE
                 }
 
                 comic.painters?.forEach {
@@ -61,6 +82,11 @@ class ComicDetailFragment : Fragment() {
                         paintersComicTextView.text = newPaintersComic
                     }
                 }
+
+                if (paintersComicTextView.text.isEmpty()) {
+                    paintersComicTextView.visibility = GONE
+                    paintersComicTitleTextView.visibility = GONE
+                }
                 priceComicTextView.text = comic.price.toString()
 
                 Glide
@@ -71,6 +97,14 @@ class ComicDetailFragment : Fragment() {
                     )
                     .override(168, 252)
                     .into(pictureComicImageView)
+
+                detailComicButton.setOnClickListener {
+                    val uri: Uri = Uri.parse(comic.urlDetail)
+                    val internetComicDetailIntent = Intent(
+                        ACTION_VIEW, uri
+                    )
+                    startActivity(internetComicDetailIntent)
+                }
             }
         }
     }

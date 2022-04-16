@@ -27,10 +27,11 @@
             android:textStyle="bold" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/description_title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Описание"
+            android:text="@string/description_title"
             android:textSize="@dimen/medium_text_size" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -47,9 +48,10 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/issue_number_title_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Номер выпуска"
+                android:text="@string/issue_number_title"
                 android:textSize="@dimen/medium_text_size" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -69,7 +71,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Формат"
+                android:text="@string/title_format"
                 android:textSize="@dimen/medium_text_size" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -89,7 +91,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Количество страниц"
+                android:text="@string/title_count_page"
                 android:textSize="@dimen/medium_text_size" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -109,7 +111,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="День выпуска"
+                android:text="@string/published_title"
                 android:textSize="@dimen/medium_text_size" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -121,10 +123,11 @@
         </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/writers_comic_title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Писатели"
+            android:text="@string/writers_title"
             android:textSize="@dimen/medium_text_size" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -135,10 +138,11 @@
             android:textSize="@dimen/medium_text_size" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/painters_comic_title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Художники"
+            android:text="@string/painters_title"
             android:textSize="@dimen/medium_text_size" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -157,7 +161,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Стоимость"
+                android:text="@string/price_title"
                 android:textSize="@dimen/medium_text_size" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -167,6 +171,14 @@
                 android:layout_marginStart="10dp"
                 android:textSize="@dimen/medium_text_size" />
         </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/detail_comic_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginStart="10dp"
+            android:text="@string/title_detail_about_comic_button" />
 
     </LinearLayout>
 
