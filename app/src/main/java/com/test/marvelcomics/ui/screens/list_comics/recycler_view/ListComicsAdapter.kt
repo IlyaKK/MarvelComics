@@ -13,6 +13,9 @@ const val COMICS_TYPE = 1
 
 class ListComicsAdapter :
     ListAdapter<Comic, RecyclerView.ViewHolder>(ComicsItemCallBack()) {
+    private var listenerProgressBar: ListenerProgressBar? = null
+    private var listenerCardComicClick: ListenerCardComicClick? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             COMICS_TYPE -> ListComicsViewHolder(
@@ -36,10 +39,10 @@ class ListComicsAdapter :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ListComicsViewHolder -> {
-                holder.bind(getItem(position))
+                holder.bind(getItem(position), listenerCardComicClick)
             }
             is DownloadViewHolder -> {
-                holder.bind(true)
+                listenerProgressBar = holder.initializeListenerProgressBar()
             }
         }
     }
@@ -58,5 +61,32 @@ class ListComicsAdapter :
 
     override fun getItem(position: Int): Comic {
         return currentList[position]
+    }
+
+    fun setStateProgressBar(isLoadState: Boolean) {
+        listenerProgressBar?.setLoadState(isLoadState)
+    }
+
+    fun getStateProgressBar(): Boolean? {
+        return listenerProgressBar?.getLoadState()
+    }
+
+    fun setOnCardClickListener(listenerCardComicClick: ListenerCardComicClick) {
+        this.listenerCardComicClick = listenerCardComicClick
+    }
+
+    interface ListenerProgressBar {
+        fun setLoadState(isLoadState: Boolean)
+        fun getLoadState(): Boolean
+    }
+
+    interface ListenerCardComicClick {
+        fun onComicCardClickListener(comic: Comic)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        listenerCardComicClick = null
+        listenerProgressBar = null
+        super.onDetachedFromRecyclerView(recyclerView)
     }
 }

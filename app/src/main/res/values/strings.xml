@@ -3,4 +3,13 @@
     <string name="picture_of_comic">Picture of comic image view content description</string>
     <string name="title_writer">Писатели: </string>
     <string name="title_penciler">Художники: </string>
+    <string name="description_title">Описание</string>
+    <string name="issue_number_title">Номер выпуска</string>
+    <string name="title_format">Формат</string>
+    <string name="title_count_page">Количество страниц</string>
+    <string name="published_title">День выпуска</string>
+    <string name="writers_title">Писатели</string>
+    <string name="painters_title">Художники</string>
+    <string name="price_title">Стоимость</string>
+    <string name="title_detail_about_comic_button">Детали о комиксе</string>
 </resources>
