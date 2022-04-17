@@ -13,7 +13,8 @@ class NetworkMarvelComicsRepository(val api: MarvelComicsApi) {
     fun getMarvelComics(
         dataRange: String,
         offset: Int,
-        callback: (List<ComicApi>?) -> Unit
+        callback: (List<ComicApi>?) -> Unit,
+        errorCallback: (Int) -> Unit
     ) {
         val marvelNetworkSecurity = MarvelNetworkSecurity()
         api.getPublishedComics(
@@ -26,8 +27,12 @@ class NetworkMarvelComicsRepository(val api: MarvelComicsApi) {
             hash = marvelNetworkSecurity.hashMd5ForMarvelRequest,
         ).enqueue(object : Callback<DataApi> {
             override fun onResponse(call: Call<DataApi>, response: Response<DataApi>) {
-                response.body()?.let {
-                    callback(it.dataComicsApi.comicsList)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        callback(it.dataComicsApi.comicsList)
+                    }
+                } else {
+                    errorCallback(response.code())
                 }
             }
 

@@ -26,14 +26,21 @@ class MarvelComicsRepositoryImpl(
         callback: (List<Comic>) -> Unit
     ) {
         if (stateInternet) {
-            comicNetworkRepo.getMarvelComics(dataRange, offset) {
-                it?.let { comicsApiList ->
+            comicNetworkRepo.getMarvelComics(dataRange, offset,
+                callback = {
+                    it?.let { comicsApiList ->
+                        Thread {
+                            saveInDatabase(comicsApiList)
+                            callback(getFromDataBase(dataRange))
+                        }.start()
+                    }
+                },
+                errorCallback = {
+                    println(it)
                     Thread {
-                        saveInDatabase(comicsApiList)
                         callback(getFromDataBase(dataRange))
                     }.start()
-                }
-            }
+                })
         } else {
             Thread {
                 callback(getFromDataBase(dataRange))
