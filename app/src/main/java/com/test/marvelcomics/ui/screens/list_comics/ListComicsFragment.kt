@@ -1,6 +1,9 @@
 package com.test.marvelcomics.ui.screens.list_comics
 
 import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +16,9 @@ import com.test.marvelcomics.databinding.ListComicsFragmentBinding
 import com.test.marvelcomics.domain.entity.Comic
 import com.test.marvelcomics.domain.repo.MarvelComicsRepository
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdapter
-import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModelFactory
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
+import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModelFactory
 
 class ListComicsFragment(
     private val comicRepository: MarvelComicsRepository
@@ -121,7 +124,9 @@ class ListComicsFragment(
     }
 
     private fun checkInternet(): Boolean {
-        return true
+        val conn = requireActivity().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo: NetworkInfo? = conn.activeNetworkInfo
+        return networkInfo?.isConnected == true
     }
 
     override fun onDestroy() {

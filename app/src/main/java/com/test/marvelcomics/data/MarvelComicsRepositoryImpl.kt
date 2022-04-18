@@ -11,14 +11,9 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class MarvelComicsRepositoryImpl(
-    networkRepository: NetworkMarvelComicsRepository,
-    databaseRepository: DataBaseComicsRepository
+    private val networkRepository: NetworkMarvelComicsRepository,
+    private val databaseRepository: DataBaseComicsRepository
 ) : MarvelComicsRepository {
-
-    private var comicDatabaseRepo: DataBaseComicsRepository = databaseRepository
-
-    private var comicNetworkRepo: NetworkMarvelComicsRepository = networkRepository
-
     override fun getComicsData(
         stateInternet: Boolean,
         dataRange: String,
@@ -26,7 +21,7 @@ class MarvelComicsRepositoryImpl(
         callback: (List<Comic>) -> Unit
     ) {
         if (stateInternet) {
-            comicNetworkRepo.getMarvelComics(dataRange, offset,
+            networkRepository.getMarvelComics(dataRange, offset,
                 callback = {
                     it?.let { comicsApiList ->
                         Thread {
@@ -52,7 +47,7 @@ class MarvelComicsRepositoryImpl(
 
     private fun getFromDataBase(dataRange: String): List<Comic> {
         val listComics: MutableList<Comic> = mutableListOf()
-        val listComicDatabase = comicDatabaseRepo.getComics(dataRange)
+        val listComicDatabase = databaseRepository.getComics(dataRange)
         listComicDatabase.forEach { comicDb ->
             comicDb.apply {
                 val listWriters: MutableList<String> = mutableListOf()
@@ -77,11 +72,11 @@ class MarvelComicsRepositoryImpl(
                     ""
                 }
 
-                comicDatabaseRepo.getWritersOfComic(id).forEach {
+                databaseRepository.getWritersOfComic(id).forEach {
                     listWriters.add(it.name)
                 }
 
-                comicDatabaseRepo.getPaintersOfComic(id).forEach {
+                databaseRepository.getPaintersOfComic(id).forEach {
                     listPainters.add(it.name)
                 }
                 val comic = Comic(
@@ -160,9 +155,9 @@ class MarvelComicsRepositoryImpl(
                     }
                 }
 
-                comicDatabaseRepo.insertComics(comicDb)
-                comicDatabaseRepo.insertWriters(comicDb.id, listWritersDb)
-                comicDatabaseRepo.insertPainters(comicDb.id, listPaintersDb)
+                databaseRepository.insertComics(comicDb)
+                databaseRepository.insertWriters(comicDb.id, listWritersDb)
+                databaseRepository.insertPainters(comicDb.id, listPaintersDb)
             }
         }
     }
