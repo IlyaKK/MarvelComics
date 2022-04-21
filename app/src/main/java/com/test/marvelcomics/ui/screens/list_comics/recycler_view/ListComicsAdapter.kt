@@ -2,38 +2,24 @@ package com.test.marvelcomics.ui.screens.list_comics.recycler_view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.test.marvelcomics.databinding.DownloadViewBinding
-import com.test.marvelcomics.databinding.ListComicsItemBinding
-import com.test.marvelcomics.domain.entity.Comic
-
-const val LOAD_TYPE = 0
-const val COMICS_TYPE = 1
+import com.test.marvelcomics.databinding.ComicItemBinding
+import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 
 class ListComicsAdapter :
-    ListAdapter<Comic, RecyclerView.ViewHolder>(ComicsItemCallBack()) {
-    private var listenerProgressBar: ListenerProgressBar? = null
+    PagingDataAdapter<ComicWithWritersAndPainters, RecyclerView.ViewHolder>(COMICS_COMPARATOR) {
     private var listenerCardComicClick: ListenerCardComicClick? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            COMICS_TYPE -> ListComicsViewHolder(
-                ListComicsItemBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        return ListComicsViewHolder(
+            ComicItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
-            else -> DownloadViewHolder(
-                DownloadViewBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
-        }
-
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -41,52 +27,36 @@ class ListComicsAdapter :
             is ListComicsViewHolder -> {
                 holder.bind(getItem(position), listenerCardComicClick)
             }
-            is DownloadViewHolder -> {
-                listenerProgressBar = holder.initializeListenerProgressBar()
-            }
         }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) {
-            LOAD_TYPE
-        } else {
-            COMICS_TYPE
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return if (currentList.isEmpty()) 0 else currentList.size + 1
-    }
-
-    override fun getItem(position: Int): Comic {
-        return currentList[position]
-    }
-
-    fun setStateProgressBar(isLoadState: Boolean) {
-        listenerProgressBar?.setLoadState(isLoadState)
-    }
-
-    fun getStateProgressBar(): Boolean? {
-        return listenerProgressBar?.getLoadState()
     }
 
     fun setOnCardClickListener(listenerCardComicClick: ListenerCardComicClick) {
         this.listenerCardComicClick = listenerCardComicClick
     }
 
-    interface ListenerProgressBar {
-        fun setLoadState(isLoadState: Boolean)
-        fun getLoadState(): Boolean
-    }
-
     interface ListenerCardComicClick {
-        fun onComicCardClickListener(comic: Comic)
+        fun onComicCardClickListener(comic: ComicWithWritersAndPainters?)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         listenerCardComicClick = null
-        listenerProgressBar = null
         super.onDetachedFromRecyclerView(recyclerView)
+    }
+
+    companion object {
+        private val COMICS_COMPARATOR =
+            object : DiffUtil.ItemCallback<ComicWithWritersAndPainters>() {
+                override fun areItemsTheSame(
+                    oldItem: ComicWithWritersAndPainters,
+                    newItem: ComicWithWritersAndPainters
+                ): Boolean =
+                    oldItem.comic.comicId == newItem.comic.comicId
+
+                override fun areContentsTheSame(
+                    oldItem: ComicWithWritersAndPainters,
+                    newItem: ComicWithWritersAndPainters
+                ): Boolean =
+                    oldItem == newItem
+            }
     }
 }

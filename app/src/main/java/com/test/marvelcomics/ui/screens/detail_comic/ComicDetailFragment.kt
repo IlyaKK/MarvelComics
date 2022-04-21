@@ -3,6 +3,7 @@ package com.test.marvelcomics.ui.screens.detail_comic
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.test.marvelcomics.databinding.ComicDetailFragmentBinding
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class ComicDetailFragment : Fragment() {
     private lateinit var binding: ComicDetailFragmentBinding
@@ -39,67 +42,78 @@ class ComicDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         sharedComicViewModel.comicLiveData.observe(viewLifecycleOwner) { comic ->
             binding.apply {
-                titleComicTextView.text = comic.title
-                if (comic.description.isNotEmpty())
-                    descriptionComicTextView.text = comic.description
-                else {
-                    descriptionComicTextView.visibility = GONE
-                    descriptionTitleTextView.visibility = GONE
-                }
-                if (comic.issueNumber != 0) {
-                    issueNumberComicTextView.text = comic.issueNumber.toString()
-                } else {
-                    issueNumberComicTextView.visibility = GONE
-                    issueNumberTitleTextView.visibility = GONE
-                }
-                formatComicTextView.text = comic.format
-                pageCountComicTextView.text = comic.pageCount.toString()
-                saleDayComicTextView.text = comic.saleDay
-
-                comic.writers?.let {
-                    it.forEach { nameWriter ->
-                        if (writersComicTextView.text.isEmpty()) {
-                            writersComicTextView.text = nameWriter
-                        } else {
-                            val oldWritersComic: String = writersComicTextView.text as String
-                            val newWritersComic = "$oldWritersComic, $nameWriter"
-                            writersComicTextView.text = newWritersComic
-                        }
-                    }
-                }
-
-                if (writersComicTextView.text.isEmpty()) {
-                    writersComicTextView.visibility = GONE
-                    writersComicTitleTextView.visibility = GONE
-                }
-
-                comic.painters?.forEach {
-                    if (paintersComicTextView.text.isEmpty())
-                        paintersComicTextView.text = it
-                    else {
-                        val oldPaintersComic: String = paintersComicTextView.text as String
-                        val newPaintersComic = "$oldPaintersComic, $it"
-                        paintersComicTextView.text = newPaintersComic
-                    }
-                }
-
-                if (paintersComicTextView.text.isEmpty()) {
-                    paintersComicTextView.visibility = GONE
-                    paintersComicTitleTextView.visibility = GONE
-                }
-                priceComicTextView.text = comic.price.toString()
 
                 Glide
                     .with(root)
                     .load(
-                        (comic.imagePath.replace("http", "https"))
+                        (comic.comic.imagePath.replace("http", "https"))
                                 + "/portrait_fantastic.jpg"
                     )
                     .override(168, 252)
                     .into(pictureComicImageView)
 
+                titleComicTextView.text = comic.comic.title
+
+                if (!comic.comic.description.isNullOrEmpty())
+                    descriptionComicTextView.text = comic.comic.description
+                else {
+                    descriptionComicTextView.visibility = GONE
+                    descriptionTitleTextView.visibility = GONE
+                }
+
+                if (comic.comic.issueNumber != 0) {
+                    issueNumberComicTextView.text = comic.comic.issueNumber.toString()
+                } else {
+                    issueNumberComicTextView.visibility = GONE
+                    issueNumberTitleTextView.visibility = GONE
+                }
+
+                formatComicTextView.text = comic.comic.format
+                pageCountComicTextView.text = comic.comic.pageCount.toString()
+
+                val saleDay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
+                    val zonedDateTime = ZonedDateTime.parse(comic.comic.saleDay, pattern)
+                    "${(zonedDateTime.dayOfMonth).formatDayOrMonth()}.${(zonedDateTime.monthValue).formatDayOrMonth()}.${zonedDateTime.year}"
+                } else {
+                    ""
+                }
+                saleDayComicTextView.text = saleDay
+
+                comic?.writers?.forEach {
+                    if (writersComicTextView.text.isNotEmpty()) {
+                        var nameWriter: String = writersComicTextView.text.toString()
+                        nameWriter = "$nameWriter, ${it.name}"
+                        writersComicTextView.text = nameWriter
+                    } else {
+                        writersComicTextView.text = it.name
+                    }
+                }
+
+                if (writersComicTextView.text.isEmpty()) {
+                    writersComicTitleTextView.visibility = GONE
+                    writersComicTextView.visibility = GONE
+                }
+
+                comic?.painters?.forEach {
+                    if (paintersComicTextView.text.isNotEmpty()) {
+                        var namePainter: String = paintersComicTextView.text.toString()
+                        namePainter = "$namePainter, ${it.name}"
+                        paintersComicTextView.text = namePainter
+                    } else {
+                        paintersComicTextView.text = it.name
+                    }
+                }
+
+                if (paintersComicTextView.text.isEmpty()) {
+                    paintersComicTitleTextView.visibility = GONE
+                    paintersComicTextView.visibility = GONE
+                }
+
+                priceComicTextView.text = comic.comic.price.toString()
+
                 detailComicButton.setOnClickListener {
-                    val uri: Uri = Uri.parse(comic.urlDetail)
+                    val uri: Uri = Uri.parse(comic.comic.urlDetail)
                     val internetComicDetailIntent = Intent(
                         ACTION_VIEW, uri
                     )
@@ -108,4 +122,7 @@ class ComicDetailFragment : Fragment() {
             }
         }
     }
+
+
+    private fun Int.formatDayOrMonth() = "%02d".format(this)
 }

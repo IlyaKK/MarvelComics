@@ -13,6 +13,6 @@
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/list_comics_item" />
+        tools:listitem="@layout/comic_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

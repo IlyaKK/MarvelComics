@@ -10,24 +10,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.test.marvelcomics.Injection
 import com.test.marvelcomics.databinding.ListComicsFragmentBinding
-import com.test.marvelcomics.domain.entity.Comic
-import com.test.marvelcomics.domain.repo.MarvelComicsRepository
+import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdapter
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
-import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModelFactory
+import com.test.marvelcomics.ui.view_models.view_model_list_comics.UiAction
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class ListComicsFragment(
-    private val comicRepository: MarvelComicsRepository
-) : Fragment() {
+class ListComicsFragment() : Fragment() {
     companion object {
-        fun newInstance(
-            comicRepository: MarvelComicsRepository
-        ): ListComicsFragment {
-            return ListComicsFragment(comicRepository)
+        fun newInstance(): ListComicsFragment {
+            return ListComicsFragment()
         }
     }
 
@@ -39,7 +38,7 @@ class ListComicsFragment(
     private val listComicsViewModel: ListComicsViewModel by lazy {
         ViewModelProvider(
             this,
-            ListComicsViewModelFactory(comicRepository)
+            Injection.provideViewModelFactory(owner = requireActivity(), context = requireContext())
         )[ListComicsViewModel::class.java]
     }
 
@@ -69,59 +68,28 @@ class ListComicsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeListComicsRecycleView()
-        initializeReceiveListMarvelComics()
-
-        if (savedInstanceState == null) {
-            getComics("1949-01-01,2022-04-05")
-        }
     }
 
     private fun initializeListComicsRecycleView() {
         linearLayoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.listsComicsRecyclerView.layoutManager = linearLayoutManager
         binding.listsComicsRecyclerView.adapter = listComicsAdapter
+        listComicsAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
-                override fun onComicCardClickListener(comic: Comic) {
+                override fun onComicCardClickListener(comic: ComicWithWritersAndPainters?) {
                     sharedComicViewModel.comicMutableLiveData.value = comic
                     controller?.displayComicDetail()
                 }
             })
-    }
 
-    private fun initializeReceiveListMarvelComics() {
-        initializeScrollingRecyclerView()
+        listComicsViewModel.accept(UiAction.ShowComics(dataRange = "1949-01-01,2022-04-05"))
 
-        listComicsViewModel.listMarvelComicsLiveData.observe(viewLifecycleOwner) { newListComic ->
-            listComicsAdapter.setStateProgressBar(false)
-            listComicsAdapter.submitList(newListComic)
+        lifecycleScope.launch {
+            listComicsViewModel.pagingDataFlow.collectLatest(listComicsAdapter::submitData)
         }
     }
 
-    private fun initializeScrollingRecyclerView() {
-        binding.listsComicsRecyclerView.addOnScrollListener(
-            object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
-                    val totalItemCount = recyclerView.layoutManager?.itemCount
-                    val lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition()
-                    val progressBarLoadState = listComicsAdapter.getStateProgressBar()
-                    if (totalItemCount == lastVisibleItemPosition + 1 && progressBarLoadState != true) {
-                        listComicsAdapter.setStateProgressBar(true)
-                        getComics("1949-01-01,2022-04-05", listComicsAdapter.currentList.size)
-                    }
-                }
-            })
-    }
-
-    private fun getComics(dataRange: String, offset: Int = 0) {
-        val stateInternet = checkInternet()
-        listComicsViewModel.getPublishedMarvelComics(
-            stateInternet = stateInternet,
-            dataRange = dataRange,
-            offset = offset
-        )
-    }
 
     private fun checkInternet(): Boolean {
         val conn = requireActivity().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager

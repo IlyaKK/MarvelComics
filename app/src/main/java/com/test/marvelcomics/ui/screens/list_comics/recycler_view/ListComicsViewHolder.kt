@@ -5,63 +5,64 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.test.marvelcomics.databinding.ListComicsItemBinding
-import com.test.marvelcomics.domain.entity.Comic
+import com.test.marvelcomics.databinding.ComicItemBinding
+import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 
-class ListComicsViewHolder(private val binding: ListComicsItemBinding) :
+class ListComicsViewHolder(private val binding: ComicItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     @SuppressLint("CheckResult")
-    fun bind(comic: Comic, listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick?) {
-        val nameWriters: StringBuilder = StringBuilder()
-        val namePainters: StringBuilder = StringBuilder()
-
+    fun bind(
+        comic: ComicWithWritersAndPainters?,
+        listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick?
+    ) {
         binding.oneComicInListCardView.setOnClickListener {
             listenerCardComicClick?.onComicCardClickListener(comic)
         }
 
         binding.apply {
-            nameComicTextView.text = comic.title
-            comic.writers?.forEach {
-                if (nameWriters.isEmpty()) {
-                    nameWriters.append(it)
+            nameComicTextView.text = comic?.comic?.title
+
+            comic?.writers?.forEach {
+                if (nameWriterTextView.text.isNotEmpty()) {
+                    var nameWriter: String = nameWriterTextView.text.toString()
+                    nameWriter = "$nameWriter, ${it.name}"
+                    nameWriterTextView.text = nameWriter
                 } else {
-                    nameWriters.append(
-                        ", $it"
-                    )
+                    nameWriterTextView.text = it.name
                 }
             }
 
-            comic.painters?.forEach {
-                if (namePainters.isEmpty())
-                    namePainters.append(it)
-                else {
-                    namePainters.append(
-                        ", $it"
-                    )
-                }
-            }
-
-            if (nameWriters.isEmpty()) {
+            if (nameWriterTextView.text.isEmpty()) {
+                nameWriterTextView.visibility = GONE
                 titleWriterTextView.visibility = GONE
             } else {
+                nameWriterTextView.visibility = VISIBLE
                 titleWriterTextView.visibility = VISIBLE
             }
 
-            if (namePainters.isEmpty()) {
-                titlePencilerTextView.visibility = GONE
-            } else {
-                titlePencilerTextView.visibility = VISIBLE
+            comic?.painters?.forEach {
+                if (namePencilerTextView.text.isNotEmpty()) {
+                    var namePainter: String = namePencilerTextView.text.toString()
+                    namePainter = "$namePainter, ${it.name}"
+                    namePencilerTextView.text = namePainter
+                } else {
+                    namePencilerTextView.text = it.name
+                }
             }
 
-            nameWriterTextView.text = nameWriters
-            namePencilerTextView.text = namePainters
+            if (namePencilerTextView.text.isEmpty()) {
+                namePencilerTextView.visibility = GONE
+                titlePencilerTextView.visibility = GONE
+            } else {
+                namePencilerTextView.visibility = VISIBLE
+                titlePencilerTextView.visibility = VISIBLE
+            }
 
             Glide
                 .with(root)
                 .load(
-                    (comic.imagePath.replace("http", "https"))
+                    (comic?.comic?.imagePath?.replace("http", "https"))
                             + "/portrait_fantastic.jpg"
                 )
                 .override(100, 150)

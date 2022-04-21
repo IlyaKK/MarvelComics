@@ -9,7 +9,7 @@ data class ComicApi(
     val description: String?,
     val format: String,
     val pageCount: Int?,
-    val textObjects: List<AdditionalDescriptionComic>?,
+    val textObjects: List<AdditionalDescriptionComic?>?,
     val urls: List<UrlsAboutComicApi>,
     val dates: List<DatesOfComicApi>,
     val prices: List<PriceApi>,

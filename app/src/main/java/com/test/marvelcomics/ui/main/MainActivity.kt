@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.test.marvelcomics.R
-import com.test.marvelcomics.data.repositoryApp
 import com.test.marvelcomics.ui.screens.detail_comic.ComicDetailFragment
 import com.test.marvelcomics.ui.screens.list_comics.ListComicsFragment
 
@@ -22,7 +21,7 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.container,
-                    ListComicsFragment.newInstance(repositoryApp.comicRepository)
+                    ListComicsFragment.newInstance()
                 )
                 .commit()
         }
