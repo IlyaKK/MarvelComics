@@ -1,17 +1,22 @@
 package com.test.marvelcomics.ui.screens.list_comics.recycler_view
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.test.marvelcomics.databinding.ComicItemBinding
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 
 class ListComicsViewHolder(private val binding: ComicItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
-    @SuppressLint("CheckResult")
     fun bind(
         comic: ComicWithWritersAndPainters?,
         listenerCardComicClick: ListComicsAdapter.ListenerCardComicClick?
@@ -61,6 +66,7 @@ class ListComicsViewHolder(private val binding: ComicItemBinding) :
                 titlePencilerTextView.visibility = VISIBLE
             }
 
+            binding.downloadImageProgressBar.visibility = VISIBLE
             comic?.comic?.imagePath?.let {
                 Glide
                     .with(root)
@@ -69,6 +75,28 @@ class ListComicsViewHolder(private val binding: ComicItemBinding) :
                                 + "/portrait_fantastic.jpg"
                     )
                     .override(100, 150)
+                    .listener(object : RequestListener<Drawable> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            binding.downloadImageProgressBar.visibility = GONE
+                            return false
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            binding.downloadImageProgressBar.visibility = GONE
+                            return false
+                        }
+                    })
                     .into(pictureComicImageView)
             }
         }

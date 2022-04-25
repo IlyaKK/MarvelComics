@@ -2,6 +2,7 @@ package com.test.marvelcomics.ui.screens.detail_comic
 
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.test.marvelcomics.databinding.ComicDetailFragmentBinding
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import java.time.ZonedDateTime
@@ -51,6 +56,28 @@ class ComicDetailFragment : Fragment() {
                                     + "/portrait_fantastic.jpg"
                         )
                         .override(168, 252)
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                binding.imageDownloadingProgressBar.visibility = GONE
+                                return false
+                            }
+
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                binding.imageDownloadingProgressBar.visibility = GONE
+                                return false
+                            }
+                        })
                         .into(pictureComicImageView)
                 }
 

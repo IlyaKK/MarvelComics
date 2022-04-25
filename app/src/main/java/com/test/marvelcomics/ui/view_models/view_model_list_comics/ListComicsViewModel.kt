@@ -15,14 +15,16 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ListComicsViewModel(
     private val comicsRepository: MarvelComicsRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private fun Int.formatDayOrMonth() = "%02d".format(this)
+
     private val UiModel.ComicItem.roundedSaleDay: ZonedDateTime?
+        @RequiresApi(Build.VERSION_CODES.O)
         get() {
             val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
             return ZonedDateTime.parse(this.comic.comic.saleDay, pattern)
@@ -74,6 +76,7 @@ class ListComicsViewModel(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getMarvelComicsByRange(dataRange: String): Flow<PagingData<UiModel>> =
         comicsRepository.getComicsData(dataRange)
             .map { pagingData -> pagingData.map { UiModel.ComicItem(it) } }

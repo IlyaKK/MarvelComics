@@ -1,5 +1,7 @@
 package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -11,7 +13,8 @@ class ListComicsViewModelFactory(
     private val repository: MarvelComicsRepository
 ) :
     AbstractSavedStateViewModelFactory(owner, null) {
-    override fun <T : ViewModel?> create(
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,
         handle: SavedStateHandle

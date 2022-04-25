@@ -26,6 +26,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ProgressBar
+                android:id="@+id/download_image_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/picture_comic_image_view"
+                app:layout_constraintEnd_toEndOf="@id/picture_comic_image_view"
+                app:layout_constraintStart_toStartOf="@id/picture_comic_image_view"
+                app:layout_constraintTop_toTopOf="@id/picture_comic_image_view" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/name_comic_text_view"
                 android:layout_width="0dp"
