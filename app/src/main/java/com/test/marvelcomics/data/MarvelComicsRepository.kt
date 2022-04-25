@@ -14,7 +14,7 @@ class MarvelComicsRepository(
     private val database: ComicsDatabase
 ) {
     companion object {
-        const val NETWORK_PAGE_SIZE = 10
+        const val NETWORK_PAGE_SIZE = 30
     }
 
     @OptIn(ExperimentalPagingApi::class)
@@ -30,7 +30,7 @@ class MarvelComicsRepository(
             config = PagingConfig(
                 pageSize = NETWORK_PAGE_SIZE,
                 enablePlaceholders = false,
-                prefetchDistance = 3
+                prefetchDistance = 20
             ),
             remoteMediator = MarvelComicsRemoteMediator(
                 dataRange,

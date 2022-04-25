@@ -23,13 +23,14 @@ class ListComicsViewHolder(private val binding: ComicItemBinding) :
         binding.apply {
             nameComicTextView.text = comic?.comic?.title
 
+            nameWriterTextView.text = ""
             comic?.writers?.forEach {
-                if (nameWriterTextView.text.isNotEmpty()) {
-                    var nameWriter: String = nameWriterTextView.text.toString()
-                    nameWriter = "$nameWriter, ${it.name}"
-                    nameWriterTextView.text = nameWriter
-                } else {
+                if (nameWriterTextView.text.isEmpty()) {
                     nameWriterTextView.text = it.name
+                } else {
+                    var nameWrite: String = nameWriterTextView.text.toString()
+                    nameWrite = "$nameWrite, ${it.name}"
+                    nameWriterTextView.text = nameWrite
                 }
             }
 
@@ -41,6 +42,7 @@ class ListComicsViewHolder(private val binding: ComicItemBinding) :
                 titleWriterTextView.visibility = VISIBLE
             }
 
+            namePencilerTextView.text = ""
             comic?.painters?.forEach {
                 if (namePencilerTextView.text.isNotEmpty()) {
                     var namePainter: String = namePencilerTextView.text.toString()
@@ -59,14 +61,16 @@ class ListComicsViewHolder(private val binding: ComicItemBinding) :
                 titlePencilerTextView.visibility = VISIBLE
             }
 
-            Glide
-                .with(root)
-                .load(
-                    (comic?.comic?.imagePath?.replace("http", "https"))
-                            + "/portrait_fantastic.jpg"
-                )
-                .override(100, 150)
-                .into(pictureComicImageView)
+            comic?.comic?.imagePath?.let {
+                Glide
+                    .with(root)
+                    .load(
+                        (it.replace("http", "https"))
+                                + "/portrait_fantastic.jpg"
+                    )
+                    .override(100, 150)
+                    .into(pictureComicImageView)
+            }
         }
     }
 }

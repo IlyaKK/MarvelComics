@@ -5,7 +5,7 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.test.marvelcomics.data.MarvelComicsRepository.Companion.NETWORK_PAGE_SIZE
+import com.google.gson.JsonSyntaxException
 import com.test.marvelcomics.data.database.ComicsDatabase
 import com.test.marvelcomics.data.retrofit.MarvelComicsService
 import com.test.marvelcomics.data.retrofit.MarvelNetworkSecurity
@@ -26,30 +26,27 @@ class MarvelComicsRemoteMediator(
         state: PagingState<Int, ComicWithWritersAndPainters>
     ): MediatorResult {
         var limit = state.config.pageSize
-        val offset: Int
+        var offset = 0
 
         when (loadType) {
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
-                if (remoteKeys != null) {
-                    offset = remoteKeys.nextKey?.minus(NETWORK_PAGE_SIZE) ?: 0
-                    limit = state.config.pageSize
-                } else {
-                    offset = 0
+                offset = remoteKeys?.nextOffset?.minus(limit) ?: 0
+
+                if (remoteKeys == null) {
                     limit = state.config.initialLoadSize
                 }
             }
             LoadType.PREPEND -> {
                 val remoteKeys = getRemoteKeyForFirstItem(state)
-                val prevKey = remoteKeys?.prevKey
+                offset = remoteKeys?.prevOffset
                     ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
-                offset = prevKey
             }
             LoadType.APPEND -> {
                 val remoteKeys = getRemoteKeyForLastItem(state)
-                val nextKey = remoteKeys?.nextKey
+
+                offset = remoteKeys?.nextOffset
                     ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
-                offset = nextKey
             }
         }
 
@@ -58,6 +55,8 @@ class MarvelComicsRemoteMediator(
             val apiResponse = service.getPublishedComics(
                 nowDate = dataRange,
                 formatType = "comic",
+                format = "comic",
+                noVariants = true,
                 orderBy = "-onsaleDate",
                 offset = offset,
                 limit = limit,
@@ -69,122 +68,140 @@ class MarvelComicsRemoteMediator(
             val repos = apiResponse.dataComicsApi.comicsList
             val endOfPaginationReached = repos.isEmpty()
             marvelComicsDatabase.withTransaction {
-                if (loadType == LoadType.REFRESH) {
-                    marvelComicsDatabase.remoteKeysDao().clearRemoteKeys()
-                    marvelComicsDatabase.comicDao().clearComicPainterCrossRef()
-                    marvelComicsDatabase.comicDao().clearComicWriterCrossRef()
-                    marvelComicsDatabase.painterDao().clearPainter()
-                    marvelComicsDatabase.writerDao().clearWriter()
-                    marvelComicsDatabase.comicDao().clearComics()
+                val listComicsEntityDb = createListComicsDb(repos)
+                val prevOffset = if (offset == 0) null else offset - limit
+                val nextOffset =
+                    if (endOfPaginationReached) null else offset + limit
+                if (listComicsEntityDb.isNotEmpty()) {
+                    val keys = listComicsEntityDb.map {
+                        (RemoteKeys(it.comicId, prevOffset, nextOffset))
+                    }
+                    marvelComicsDatabase.remoteKeysDao().insertAll(keys)
+                    marvelComicsDatabase.comicDao().insertAll(listComicsEntityDb)
                 }
-                val prevKey = if (offset == 0) null else offset
-                val nextKey = if (endOfPaginationReached) null else offset + limit
-                val keys = repos.map {
-                    RemoteKeys(comicId = it.id, prevKey = prevKey, nextKey = nextKey)
-                }
-                marvelComicsDatabase.remoteKeysDao().insertAll(keys)
-                insertComics(repos)
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (exception: IOException) {
             return MediatorResult.Error(exception)
         } catch (exception: HttpException) {
             return MediatorResult.Error(exception)
+        } catch (exception: JsonSyntaxException) {
+            return MediatorResult.Error(exception)
         }
     }
 
-    private suspend fun insertComics(repos: List<ComicApi>) {
+    private suspend fun createListComicsDb(
+        repos: List<ComicApi>
+    ): List<ComicEntityDb> {
+        val listComicsDb = mutableListOf<ComicEntityDb>()
         repos.forEach { comicApi ->
             val listWritersDb: MutableList<WriterEntityDb> = mutableListOf()
             val listPaintersDb: MutableList<PainterEntityDb> = mutableListOf()
-            comicApi.apply {
-                var urlDetailComic: String? = null
-                var saleDayComic: String? = null
-                var priceComic: Double? = null
-                var descriptionComic: String?
+            if (!existComicInDatabase(comicApi.id)) {
+                comicApi.apply {
+                    var urlDetailComic: String? = null
+                    var saleDayComic: String? = null
+                    var priceComic: Double? = null
+                    var descriptionComic: String?
 
-                urls.forEach { urlsAboutComic ->
-                    if (urlsAboutComic.type == "detail") urlDetailComic =
-                        urlsAboutComic.url
-                }
-
-                dates.forEach { datesOfComic ->
-                    if (datesOfComic.type == "onsaleDate") {
-                        saleDayComic = datesOfComic.date
+                    urls?.forEach { urlsAboutComic ->
+                        if (urlsAboutComic?.type == "detail") urlDetailComic =
+                            urlsAboutComic.url
                     }
-                }
 
-                prices.forEach { price ->
-                    if (price.type == "printPrice") priceComic = price.price
-                }
-
-                descriptionComic = description
-
-                textObjects?.forEach {
-                    it?.let {
-                        if (!it.text.isNullOrEmpty()) {
-                            descriptionComic = it.text
+                    dates?.forEach { datesOfComic ->
+                        if (datesOfComic?.type == "onsaleDate") {
+                            saleDayComic = datesOfComic.date
                         }
                     }
-                }
 
-                val comicDb = ComicEntityDb(
-                    id,
-                    title,
-                    issueNumber,
-                    descriptionComic,
-                    format,
-                    pageCount,
-                    urlDetailComic,
-                    saleDayComic,
-                    priceComic,
-                    imageApiPath.path
-                )
+                    prices?.forEach { price ->
+                        if (price?.type == "printPrice") priceComic = price.price
+                    }
 
-                creatorsComicApi.listCreatorsComicApi.forEach { creatorComic ->
-                    when (creatorComic.role) {
-                        "writer" -> {
-                            listWritersDb.add(WriterEntityDb(0, creatorComic.name))
-                        }
-                        "penciler (cover)",
-                        "penciler",
-                        "penciller (cover)",
-                        "penciller" -> {
-                            listPaintersDb.add(PainterEntityDb(0, creatorComic.name))
+                    descriptionComic = description
+
+                    textObjects?.forEach {
+                        it?.let {
+                            if (!it.text.isNullOrEmpty()) {
+                                descriptionComic = it.text
+                            }
                         }
                     }
-                }
 
-                marvelComicsDatabase.comicDao().insertComic(comicDb)
-
-                listWritersDb.forEach {
-                    marvelComicsDatabase.writerDao().insert(it)
-                    val idWriter = marvelComicsDatabase.writerDao().getIdWriterByName(it.name)
-                    marvelComicsDatabase.comicDao().insertComicWriterCrossRef(
-                        ComicWriterCrossRef(
-                            comicId = comicDb.comicId,
-                            writerId = idWriter
-                        )
+                    val comicDb = ComicEntityDb(
+                        id,
+                        title,
+                        issueNumber,
+                        descriptionComic,
+                        format,
+                        pageCount,
+                        urlDetailComic,
+                        saleDayComic,
+                        priceComic,
+                        imageApiPath?.path,
+                        timeDownload
                     )
-                }
 
-                listPaintersDb.forEach {
-                    marvelComicsDatabase.painterDao().insert(it)
-                    val idPainter =
-                        marvelComicsDatabase.painterDao().getIdPainterByName(it.name)
-                    marvelComicsDatabase.comicDao().insertComicPainterCrossRef(
-                        ComicPainterCrossRef(
-                            comicId = comicDb.comicId,
-                            painterId = idPainter
-                        )
-                    )
+                    listComicsDb.add(comicDb)
+
+                    creatorsComicApi?.listCreatorsComicApi?.forEach { creatorComic ->
+                        when (creatorComic?.role) {
+                            "writer" -> {
+                                creatorComic.name?.let { WriterEntityDb(0, it) }
+                                    ?.let { listWritersDb.add(it) }
+                            }
+                            "penciler (cover)",
+                            "penciler",
+                            "penciller (cover)",
+                            "penciller" -> {
+                                creatorComic.name?.let { PainterEntityDb(0, it) }
+                                    ?.let { listPaintersDb.add(it) }
+                            }
+                        }
+                    }
+
+                    marvelComicsDatabase.withTransaction {
+                        listWritersDb.forEach {
+                            marvelComicsDatabase.writerDao().insert(it)
+                            val idWriter =
+                                marvelComicsDatabase.writerDao().getIdWriterByName(it.name)
+                            marvelComicsDatabase.comicDao().insertComicWriterCrossRef(
+                                ComicWriterCrossRef(
+                                    comicId = comicDb.comicId,
+                                    writerId = idWriter
+                                )
+                            )
+                        }
+                    }
+
+                    marvelComicsDatabase.withTransaction {
+                        listPaintersDb.forEach {
+                            marvelComicsDatabase.painterDao().insert(it)
+                            val idPainter =
+                                marvelComicsDatabase.painterDao().getIdPainterByName(it.name)
+                            marvelComicsDatabase.comicDao().insertComicPainterCrossRef(
+                                ComicPainterCrossRef(
+                                    comicId = comicDb.comicId,
+                                    painterId = idPainter
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
+        return listComicsDb.toList()
+    }
+
+    private suspend fun existComicInDatabase(id: Int): Boolean {
+        return marvelComicsDatabase.comicDao().getComicById(id) != null
     }
 
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ComicWithWritersAndPainters>): RemoteKeys? {
-        return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
+        return state.pages.lastOrNull {
+            it.data.isNotEmpty()
+        }?.data?.lastOrNull()
             ?.let { comicWithWritersAndPainters ->
                 marvelComicsDatabase.remoteKeysDao()
                     .remoteKeysComicId(comicWithWritersAndPainters.comic.comicId)

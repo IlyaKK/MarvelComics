@@ -13,4 +13,5 @@
     <string name="price_title">Стоимость</string>
     <string name="title_detail_about_comic_button">Детали о комиксе</string>
     <string name="retry">Повторить загрузку</string>
+    <string name="no_results">No results 😓</string>
 </resources>

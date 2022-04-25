@@ -1,22 +1,24 @@
 package com.test.marvelcomics.ui.main
 
-import android.content.IntentFilter
-import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.test.marvelcomics.R
 import com.test.marvelcomics.ui.screens.detail_comic.ComicDetailFragment
 import com.test.marvelcomics.ui.screens.list_comics.ListComicsFragment
 
+@RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
-    private lateinit var receiver: NetworkReceiver
-
+    //private lateinit var receiver: NetworkReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        receiver = NetworkReceiver()
-        this.registerReceiver(receiver, filter)
+        /*val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        receiver = NetworkReceiver {
+            Snackbar.make(binding.container, it, Snackbar.LENGTH_LONG).show()
+        }
+        this.registerReceiver(receiver, filter)*/
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
     }
 
     override fun onDestroy() {
-        this.unregisterReceiver(receiver)
+        //this.unregisterReceiver(receiver)
         super.onDestroy()
     }
 }

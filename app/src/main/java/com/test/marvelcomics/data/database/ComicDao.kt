@@ -6,8 +6,8 @@ import com.test.marvelcomics.domain.entity.database.*
 
 @Dao
 interface ComicDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertComic(comic: ComicEntityDb)
+    @Insert
+    suspend fun insertAll(comic: List<ComicEntityDb>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertComicWriterCrossRef(comicWriterCrossRef: ComicWriterCrossRef)
@@ -19,7 +19,7 @@ interface ComicDao {
     @Query(
         "SELECT * FROM comic " +
                 "WHERE saleDay <= :endRange AND saleDay >= :startRange " +
-                "ORDER BY saleDay DESC"
+                "ORDER BY timeDownload ASC, saleDay DESC"
     )
     fun getComics(
         startRange: String,
@@ -34,4 +34,13 @@ interface ComicDao {
 
     @Query("DELETE FROM comic_painter_cross_ref")
     suspend fun clearComicPainterCrossRef()
+
+    @Query(
+        "SELECT * FROM comic " +
+                "WHERE comicId = :idComic"
+    )
+    suspend fun getComicById(idComic: Int): ComicEntityDb?
+
+    @Query("SELECT COUNT(*) FROM comic")
+    suspend fun getCountRowComics(): Int
 }

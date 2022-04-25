@@ -1,21 +1,26 @@
 package com.test.marvelcomics.ui.screens.list_comics
 
 import android.content.Context
-import android.content.Context.CONNECTIVITY_SERVICE
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Spinner
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.test.marvelcomics.Injection
 import com.test.marvelcomics.databinding.ListComicsFragmentBinding
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
+import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ComicsDownloadStateAdapter
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdapter
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
@@ -23,6 +28,7 @@ import com.test.marvelcomics.ui.view_models.view_model_list_comics.UiAction
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 class ListComicsFragment() : Fragment() {
     companion object {
         fun newInstance(): ListComicsFragment {
@@ -73,8 +79,12 @@ class ListComicsFragment() : Fragment() {
     private fun initializeListComicsRecycleView() {
         linearLayoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.listsComicsRecyclerView.layoutManager = linearLayoutManager
-        binding.listsComicsRecyclerView.adapter = listComicsAdapter
-        listComicsAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
+        val header = ComicsDownloadStateAdapter { listComicsAdapter.retry() }
+        binding.listsComicsRecyclerView.adapter = listComicsAdapter.withLoadStateHeaderAndFooter(
+            header = header,
+            footer = ComicsDownloadStateAdapter { listComicsAdapter.retry() }
+        )
+
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
                 override fun onComicCardClickListener(comic: ComicWithWritersAndPainters?) {
@@ -88,13 +98,47 @@ class ListComicsFragment() : Fragment() {
         lifecycleScope.launch {
             listComicsViewModel.pagingDataFlow.collectLatest(listComicsAdapter::submitData)
         }
+
+        lifecycleScope.launch {
+            listComicsAdapter.loadStateFlow.collect { loadState ->
+                header.loadState = loadState.mediator
+                    ?.refresh
+                    ?.takeIf {
+                        it is LoadState.Error && listComicsAdapter.itemCount > 0
+                    }
+                    ?: loadState.prepend
+
+                val isListEmpty =
+                    loadState.refresh is LoadState.NotLoading && listComicsAdapter.itemCount == 0
+                binding.emptyListTextView.isVisible = isListEmpty
+                binding.listsComicsRecyclerView.isVisible =
+                    loadState.source.refresh is LoadState.NotLoading || loadState.mediator?.refresh is LoadState.NotLoading
+                binding.progressBar.isVisible = loadState.mediator?.refresh is LoadState.Loading
+                binding.retryButton.isVisible =
+                    loadState.mediator?.refresh is LoadState.Error && listComicsAdapter.itemCount == 0
+                val errorState = loadState.source.append as? LoadState.Error
+                    ?: loadState.source.prepend as? LoadState.Error
+                    ?: loadState.append as? LoadState.Error
+                    ?: loadState.prepend as? LoadState.Error
+                errorState?.let {
+                    Snackbar.make(
+                        binding.root,
+                        "\uD83D\uDE28 Wooops ${it.error}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
+        binding.retryButton.setOnClickListener { listComicsAdapter.retry() }
     }
 
 
     private fun checkInternet(): Boolean {
-        val conn = requireActivity().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo: NetworkInfo? = conn.activeNetworkInfo
-        return networkInfo?.isConnected == true
+        /* val conn = requireActivity().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+         val networkInfo: NetworkInfo? = conn.activeNetworkInfo
+         return networkInfo?.isConnected == true*/
+        return true
     }
 
     override fun onDestroy() {

@@ -1,29 +1,42 @@
 package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
+import androidx.paging.*
 import com.test.marvelcomics.data.MarvelComicsRepository
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
 class ListComicsViewModel(
     private val comicsRepository: MarvelComicsRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private fun Int.formatDayOrMonth() = "%02d".format(this)
+    private val UiModel.ComicItem.roundedSaleDay: ZonedDateTime?
+        get() {
+            val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
+            return ZonedDateTime.parse(this.comic.comic.saleDay, pattern)
+        }
+
     private val state: StateFlow<UiState>
 
-    val pagingDataFlow: Flow<PagingData<ComicWithWritersAndPainters>>
+    val pagingDataFlow: Flow<PagingData<UiModel>>
 
     val accept: (UiAction) -> Unit
 
     init {
-        val initialDataRange: String = savedStateHandle.get(LAST_DATA_RANGE_SET) ?: DEFAULT_QUERY
+        val initialDataRange: String =
+            savedStateHandle.get(LAST_DATA_RANGE_SET) ?: DEFAULT_DATA_RANGE
         val actionStateFlow = MutableSharedFlow<UiAction>()
         val shower = actionStateFlow
             .filterIsInstance<UiAction.ShowComics>()
@@ -61,8 +74,41 @@ class ListComicsViewModel(
         }
     }
 
-    private fun getMarvelComicsByRange(dataRange: String): Flow<PagingData<ComicWithWritersAndPainters>> =
+    private fun getMarvelComicsByRange(dataRange: String): Flow<PagingData<UiModel>> =
         comicsRepository.getComicsData(dataRange)
+            .map { pagingData -> pagingData.map { UiModel.ComicItem(it) } }
+            .map {
+                it.insertSeparators { before, after ->
+                    if (after == null) {
+                        // we're at the end of the list
+                        return@insertSeparators null
+                    }
+
+                    if (before == null) {
+                        // we're at the beginning of the list
+                        return@insertSeparators UiModel.SeparatorItem(
+                            "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
+                                    "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
+                                    "${after.roundedSaleDay?.year}"
+                        )
+                    }
+                    // check between 2 items
+                    val beforeDay = before.roundedSaleDay
+                    val afterDay = after.roundedSaleDay
+                    val diffDay =
+                        ChronoUnit.DAYS.between(afterDay, beforeDay)
+                    if (diffDay > 1) {
+                        UiModel.SeparatorItem(
+                            "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
+                                    "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
+                                    "${after.roundedSaleDay?.year}"
+                        )
+                    } else {
+                        // no separator
+                        null
+                    }
+                }
+            }
 
     override fun onCleared() {
         savedStateHandle[LAST_DATA_RANGE_SET] = state.value.dataRange
@@ -71,12 +117,17 @@ class ListComicsViewModel(
 }
 
 data class UiState(
-    val dataRange: String = DEFAULT_QUERY
+    val dataRange: String = DEFAULT_DATA_RANGE
 )
 
 sealed class UiAction {
     data class ShowComics(val dataRange: String) : UiAction()
 }
 
+sealed class UiModel {
+    data class ComicItem(val comic: ComicWithWritersAndPainters) : UiModel()
+    data class SeparatorItem(val description: String) : UiModel()
+}
+
 private const val LAST_DATA_RANGE_SET: String = "last_data_range_set"
-private const val DEFAULT_QUERY: String = "1949-01-01,2022-04-05"
+private const val DEFAULT_DATA_RANGE: String = "1949-01-01,2022-04-05"

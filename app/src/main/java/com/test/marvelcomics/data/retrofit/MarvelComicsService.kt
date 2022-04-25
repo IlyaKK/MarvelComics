@@ -11,6 +11,8 @@ interface MarvelComicsService {
     suspend fun getPublishedComics(
         @Query("dateRange") nowDate: String,
         @Query("formatType") formatType: String,
+        @Query("format") format: String,
+        @Query("noVariants") noVariants: Boolean,
         @Query("orderBy") orderBy: String,
         @Query("offset") offset: Int,
         @Query("limit") limit: Int,

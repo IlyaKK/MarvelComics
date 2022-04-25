@@ -43,14 +43,16 @@ class ComicDetailFragment : Fragment() {
         sharedComicViewModel.comicLiveData.observe(viewLifecycleOwner) { comic ->
             binding.apply {
 
-                Glide
-                    .with(root)
-                    .load(
-                        (comic.comic.imagePath.replace("http", "https"))
-                                + "/portrait_fantastic.jpg"
-                    )
-                    .override(168, 252)
-                    .into(pictureComicImageView)
+                comic.comic.imagePath?.let {
+                    Glide
+                        .with(root)
+                        .load(
+                            (it.replace("http", "https"))
+                                    + "/portrait_fantastic.jpg"
+                        )
+                        .override(168, 252)
+                        .into(pictureComicImageView)
+                }
 
                 titleComicTextView.text = comic.comic.title
 
@@ -61,8 +63,8 @@ class ComicDetailFragment : Fragment() {
                     descriptionTitleTextView.visibility = GONE
                 }
 
-                if (comic.comic.issueNumber != 0) {
-                    issueNumberComicTextView.text = comic.comic.issueNumber.toString()
+                if (comic.comic.issueNumber != null) {
+                    issueNumberComicTextView.text = comic.comic.issueNumber.toInt().toString()
                 } else {
                     issueNumberComicTextView.visibility = GONE
                     issueNumberTitleTextView.visibility = GONE
