@@ -83,31 +83,27 @@ class ListComicsViewModel(
             .map {
                 it.insertSeparators { before, after ->
                     if (after == null) {
-                        // we're at the end of the list
                         return@insertSeparators null
                     }
 
                     if (before == null) {
-                        // we're at the beginning of the list
                         return@insertSeparators UiModel.SeparatorItem(
                             "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.year}"
                         )
                     }
-                    // check between 2 items
                     val beforeDay = before.roundedSaleDay
                     val afterDay = after.roundedSaleDay
                     val diffDay =
                         ChronoUnit.DAYS.between(afterDay, beforeDay)
-                    if (diffDay > 1) {
+                    if (diffDay > 0) {
                         UiModel.SeparatorItem(
                             "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.year}"
                         )
                     } else {
-                        // no separator
                         null
                     }
                 }

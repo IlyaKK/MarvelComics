@@ -5,12 +5,12 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.test.marvelcomics.data.database.ComicsDatabase
-import com.test.marvelcomics.data.retrofit.MarvelComicsService
+import com.test.marvelcomics.data.network.MarvelComicsNetworkRepository
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 import kotlinx.coroutines.flow.Flow
 
 class MarvelComicsRepository(
-    private val service: MarvelComicsService,
+    private val networkRepository: MarvelComicsNetworkRepository,
     private val database: ComicsDatabase
 ) {
     companion object {
@@ -34,7 +34,7 @@ class MarvelComicsRepository(
             ),
             remoteMediator = MarvelComicsRemoteMediator(
                 dataRange,
-                service,
+                networkRepository,
                 database
             ),
             pagingSourceFactory = pagingSourceFactory

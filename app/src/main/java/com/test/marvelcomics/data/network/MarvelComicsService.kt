@@ -1,4 +1,4 @@
-package com.test.marvelcomics.data.retrofit
+package com.test.marvelcomics.data.network
 
 import com.test.marvelcomics.domain.entity.api.DataApi
 import retrofit2.Retrofit

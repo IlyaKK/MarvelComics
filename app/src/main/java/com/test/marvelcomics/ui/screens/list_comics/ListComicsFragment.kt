@@ -107,7 +107,7 @@ class ListComicsFragment : Fragment() {
                     ?: loadState.prepend
 
                 val isListEmpty =
-                    loadState.refresh is LoadState.NotLoading && listComicsAdapter.itemCount == 0
+                    (loadState.refresh is LoadState.NotLoading || loadState.source.refresh is LoadState.NotLoading) && listComicsAdapter.itemCount == 0
                 binding.emptyListTextView.isVisible = isListEmpty
                 binding.listsComicsRecyclerView.isVisible =
                     loadState.source.refresh is LoadState.NotLoading || loadState.mediator?.refresh is LoadState.NotLoading
@@ -129,14 +129,6 @@ class ListComicsFragment : Fragment() {
         }
 
         binding.retryButton.setOnClickListener { listComicsAdapter.retry() }
-    }
-
-
-    private fun checkInternet(): Boolean {
-        /* val conn = requireActivity().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-         val networkInfo: NetworkInfo? = conn.activeNetworkInfo
-         return networkInfo?.isConnected == true*/
-        return true
     }
 
     override fun onDestroy() {

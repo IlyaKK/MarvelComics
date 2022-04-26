@@ -40,7 +40,4 @@ interface ComicDao {
                 "WHERE comicId = :idComic"
     )
     suspend fun getComicById(idComic: Int): ComicEntityDb?
-
-    @Query("SELECT COUNT(*) FROM comic")
-    suspend fun getCountRowComics(): Int
 }
