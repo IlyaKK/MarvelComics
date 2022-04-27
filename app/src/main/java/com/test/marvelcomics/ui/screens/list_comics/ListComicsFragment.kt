@@ -86,7 +86,7 @@ class ListComicsFragment : Fragment() {
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
                 override fun onComicCardClickListener(comic: ComicWithWritersAndPainters?) {
-                    sharedComicViewModel.comicMutableLiveData.value = comic
+                    sharedComicViewModel.shareComic(comic)
                     controller?.displayComicDetail()
                 }
             })

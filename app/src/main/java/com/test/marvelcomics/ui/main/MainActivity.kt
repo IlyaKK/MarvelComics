@@ -34,6 +34,11 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         super.onCreate(savedInstanceState)
+        initialiseReceiver()
+        initializeLaunchFragment()
+    }
+
+    fun initialiseReceiver() {
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         receiver = NetworkReceiver {
             val messageReceiver = if (it == null) {
@@ -44,18 +49,13 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
             Snackbar.make(binding.root, messageReceiver, Snackbar.LENGTH_LONG).show()
         }
         this.registerReceiver(receiver, filter)
-        initializeLaunchFragment()
     }
 
     private fun initializeLaunchFragment() {
         mainActivityViewModel.state.observe(this) {
             when (it.stateScreen) {
                 StateScreen.SCREEN_LIST_COMICS_FRAGMENT -> {
-                    if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        launchPortraitComicsListScreen()
-                    } else {
-                        launchLandscapeComicsListScreen()
-                    }
+                    launchComicsListScreen()
                 }
                 StateScreen.SCREEN_COMIC_DETAIL_FRAGMENT -> {
                     if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -63,6 +63,9 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
                     } else {
                         launchDetailComicFragmentLandscape()
                     }
+                }
+                else -> {
+                    mainActivityViewModel.setState(StateScreen.SCREEN_LIST_COMICS_FRAGMENT)
                 }
             }
         }
@@ -79,7 +82,7 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
         fragmentTransaction.commit()
     }
 
-    private fun launchPortraitComicsListScreen() {
+    private fun launchComicsListScreen() {
         val listComicsFragment: ListComicsFragment? =
             supportFragmentManager.findFragmentByTag(StateScreen.SCREEN_LIST_COMICS_FRAGMENT.toString()) as? ListComicsFragment
         if (listComicsFragment == null) {
@@ -94,14 +97,6 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
             fragmentTransaction.commit()
         }
 
-    }
-
-    private fun launchLandscapeComicsListScreen() {
-        val listComicsFragmentPortrait: ListComicsFragment? =
-            supportFragmentManager.findFragmentByTag(StateScreen.SCREEN_LIST_COMICS_FRAGMENT.toString()) as? ListComicsFragment
-        if (listComicsFragmentPortrait == null) {
-            createNewListComicsFragment()
-        }
     }
 
     private fun createNewComicDetailFragment() {
