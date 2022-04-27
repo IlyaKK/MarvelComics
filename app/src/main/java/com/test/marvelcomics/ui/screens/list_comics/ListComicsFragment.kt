@@ -91,7 +91,7 @@ class ListComicsFragment : Fragment() {
                 }
             })
 
-        listComicsViewModel.accept(UiAction.ShowComics(dataRange = "1949-01-01,2022-04-05"))
+        //listComicsViewModel.accept(UiAction.ShowComics(dataRange = "1949-01-01,2022-04-05"))
 
         lifecycleScope.launch {
             listComicsViewModel.pagingDataFlow.collectLatest(listComicsAdapter::submitData)
