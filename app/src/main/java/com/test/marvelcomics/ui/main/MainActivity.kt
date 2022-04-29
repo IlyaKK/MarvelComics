@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
         initializeLaunchFragment()
     }
 
-    fun initialiseReceiver() {
+    private fun initialiseReceiver() {
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         receiver = NetworkReceiver {
             val messageReceiver = if (it == null) {
@@ -111,13 +111,14 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
             fragmentTransaction.addToBackStack("")
         } else {
             val tag = StateScreen.SCREEN_COMIC_DETAIL_LANDSCAPE_FRAGMENT.toString()
-            fragmentTransaction.replace(
-                binding.secondFragmentContainer!!.id,
-                ComicDetailFragment.newInstance(),
-                tag
-            )
+            binding.secondFragmentContainer?.let {
+                fragmentTransaction.replace(
+                    it.id,
+                    ComicDetailFragment.newInstance(),
+                    tag
+                )
+            }
         }
-
         fragmentTransaction.commit()
     }
 
