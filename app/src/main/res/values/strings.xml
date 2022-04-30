@@ -20,4 +20,5 @@
     <string name="page_title">Marvel Comics</string>
     <string name="filter">Filter data range</string>
     <string name="content_description_filter_data_range">Filter data range</string>
+    <string name="select_dates_data_picker">Выберите диапазон дат</string>
 </resources>

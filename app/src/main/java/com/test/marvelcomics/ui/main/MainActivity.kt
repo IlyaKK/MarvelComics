@@ -196,6 +196,10 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
         mainActivityViewModel.setState(StateScreen.SCREEN_COMIC_DETAIL_FRAGMENT)
     }
 
+    override fun setTopAppBar() {
+        setSupportActionBar(binding.topAppBar)
+    }
+
     override fun onDestroy() {
         this.unregisterReceiver(receiver)
         super.onDestroy()

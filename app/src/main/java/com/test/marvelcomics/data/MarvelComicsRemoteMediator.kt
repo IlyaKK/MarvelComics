@@ -31,7 +31,6 @@ class MarvelComicsRemoteMediator(
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
                 offset = remoteKeys?.nextOffset?.minus(limit) ?: 0
-
                 if (remoteKeys == null) {
                     limit = state.config.initialLoadSize
                 }
@@ -59,6 +58,14 @@ class MarvelComicsRemoteMediator(
             val repos = apiResponse.dataComicsApi.comicsList
             val endOfPaginationReached = repos.isEmpty()
             marvelComicsDatabase.withTransaction {
+                if (loadType == LoadType.REFRESH) {
+                    marvelComicsDatabase.remoteKeysDao().clearRemoteKeys()
+                    marvelComicsDatabase.painterDao().clearPainter()
+                    marvelComicsDatabase.writerDao().clearWriter()
+                    marvelComicsDatabase.comicDao().clearComicWriterCrossRef()
+                    marvelComicsDatabase.comicDao().clearComicPainterCrossRef()
+                    marvelComicsDatabase.comicDao().clearComics()
+                }
                 val listComicsEntityDb = createListComicsDb(repos)
                 val prevOffset = if (offset == 0) null else offset - limit
                 val nextOffset =
