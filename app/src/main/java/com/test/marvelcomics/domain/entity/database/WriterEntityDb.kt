@@ -10,6 +10,6 @@ import androidx.room.PrimaryKey
 )
 data class WriterEntityDb(
     @PrimaryKey(autoGenerate = true)
-    val id: Int?,
+    val writerId: Int,
     val name: String
 )
