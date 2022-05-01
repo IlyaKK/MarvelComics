@@ -1,26 +1,43 @@
 package com.test.marvelcomics.data.database
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import com.test.marvelcomics.domain.entity.database.ComicEntityDb
+import androidx.paging.PagingSource
+import androidx.room.*
+import com.test.marvelcomics.domain.entity.database.*
 
 @Dao
 interface ComicDao {
     @Insert
-    fun insert(comic: ComicEntityDb)
+    suspend fun insertAll(comic: List<ComicEntityDb>)
 
-    @Query("SELECT id FROM comic")
-    fun getComicsId(): List<Int>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertComicWriterCrossRef(comicWriterCrossRef: ComicWriterCrossRef)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertComicPainterCrossRef(comicPainterCrossRef: ComicPainterCrossRef)
+
+    @Transaction
     @Query(
         "SELECT * FROM comic " +
                 "WHERE saleDay <= :endRange AND saleDay >= :startRange " +
-                "ORDER BY saleDay DESC"
+                "ORDER BY timeDownload ASC, saleDay DESC"
     )
-    fun getComics(startRange: String, endRange: String): List<ComicEntityDb>
+    fun getComics(
+        startRange: String,
+        endRange: String
+    ): PagingSource<Int, ComicWithWritersAndPainters>
 
-    @Delete
-    fun delete(comic: ComicEntityDb)
+    @Query("DELETE FROM comic")
+    suspend fun clearComics()
+
+    @Query("DELETE FROM comic_writer_cross_ref")
+    suspend fun clearComicWriterCrossRef()
+
+    @Query("DELETE FROM comic_painter_cross_ref")
+    suspend fun clearComicPainterCrossRef()
+
+    @Query(
+        "SELECT * FROM comic " +
+                "WHERE comicId = :idComic"
+    )
+    suspend fun getComicById(idComic: Int): ComicEntityDb?
 }

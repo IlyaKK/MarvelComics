@@ -1,27 +1,20 @@
-package com.test.marvelcomics.ui.view_models.view_model_list_comics
+package com.test.marvelcomics.ui.view_models.view_model_main_activity
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.test.marvelcomics.data.MarvelComicsRepository
 
-class ListComicsViewModelFactory(
-    owner: SavedStateRegistryOwner,
-    private val repository: MarvelComicsRepository
-) :
+class MainActivityViewModelFactory(owner: SavedStateRegistryOwner) :
     AbstractSavedStateViewModelFactory(owner, null) {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,
         handle: SavedStateHandle
     ): T {
-        if (modelClass.isAssignableFrom(ListComicsViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MainActivityViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return ListComicsViewModel(repository, handle) as T
+            return MainActivityViewModel(handle) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

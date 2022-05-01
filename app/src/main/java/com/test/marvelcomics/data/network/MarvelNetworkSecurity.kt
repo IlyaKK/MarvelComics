@@ -1,4 +1,4 @@
-package com.test.marvelcomics.data.retrofit
+package com.test.marvelcomics.data.network
 
 import com.test.marvelcomics.BuildConfig
 import java.math.BigInteger
@@ -7,6 +7,7 @@ import java.security.MessageDigest
 class MarvelNetworkSecurity {
     var timeStamp: String
 
+    private val crypt = MessageDigest.getInstance("MD5")
     init {
         val intRange = 0..3000
         timeStamp = intRange.random().toString()
@@ -19,7 +20,6 @@ class MarvelNetworkSecurity {
     val hashMd5ForMarvelRequest: String
         get() {
             val secureString: String = timeStamp + privateMarvelApiKey + publicMarvelApiKey
-            val crypt = MessageDigest.getInstance("MD5")
             crypt.update(secureString.toByteArray())
             return BigInteger(1, crypt.digest()).toString(16)
         }

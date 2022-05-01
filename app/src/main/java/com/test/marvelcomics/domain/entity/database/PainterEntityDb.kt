@@ -10,6 +10,6 @@ import androidx.room.PrimaryKey
 )
 data class PainterEntityDb(
     @PrimaryKey(autoGenerate = true)
-    val id: Int?,
+    val painterId: Int,
     val name: String
 )
