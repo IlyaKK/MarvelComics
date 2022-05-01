@@ -1,12 +1,12 @@
 package com.test.marvelcomics.ui.screens.list_comics
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.annotation.RequiresApi
+import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -14,8 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.test.marvelcomics.Injection
+import com.test.marvelcomics.R
 import com.test.marvelcomics.databinding.ListComicsFragmentBinding
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ComicsDownloadStateAdapter
@@ -23,8 +25,17 @@ import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdap
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.UiAction
+import com.test.marvelcomics.ui.view_models.view_model_list_comics.getTimeStampFirstDayOfMonth
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 class ListComicsFragment : Fragment() {
@@ -41,7 +52,7 @@ class ListComicsFragment : Fragment() {
 
     private val listComicsViewModel: ListComicsViewModel by lazy {
         ViewModelProvider(
-            this,
+            requireActivity(),
             Injection.provideViewModelFactory(owner = requireActivity(), context = requireContext())
         )[ListComicsViewModel::class.java]
     }
@@ -51,6 +62,8 @@ class ListComicsFragment : Fragment() {
     }
 
     private var controller: Controller? = null
+
+    private lateinit var dateRangePicker: MaterialDatePicker<Pair<Long, Long>>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -65,18 +78,82 @@ class ListComicsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         binding = ListComicsFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initialiseTopAppBar()
         initializeListComicsRecycleView()
+        initialiseDataRangeCreateDataPicker()
+    }
+
+    private fun initialiseTopAppBar() {
+        controller?.setTopAppBar()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.list_comic_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.filter_data_range_item) {
+            dateRangePicker.show(childFragmentManager, "tag")
+            return true
+        }
+        return false
+    }
+
+
+    @SuppressLint("SimpleDateFormat")
+    private fun initialiseDataRangeCreateDataPicker() {
+        lifecycleScope.launch {
+            listComicsViewModel.stateRangeData.map {
+                it.dataRange
+            }.distinctUntilChanged()
+                .collect {
+                    val massiveDataRange = it.split(",", limit = 2)
+                    val startRange = massiveDataRange[0]
+                    val endRange = massiveDataRange[1]
+                    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val startRangeLocalDateTime = LocalDate.parse(startRange, pattern)
+                    val endRangeLocalDateTime = LocalDate.parse(endRange, pattern)
+
+                    val startRangeLong =
+                        startRangeLocalDateTime.atStartOfDay(ZoneOffset.UTC).toInstant()
+                            .toEpochMilli()
+
+                    val endRangeLong =
+                        endRangeLocalDateTime.atStartOfDay(ZoneOffset.UTC).toInstant()
+                            .toEpochMilli()
+
+                    val pair = Pair(
+                        startRangeLong,
+                        endRangeLong
+                    )
+                    dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
+                        .setSelection(
+                            pair
+                        )
+                        .build()
+                }
+        }
+        dateRangePicker.addOnPositiveButtonClickListener {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+            val firstDate = it.first
+            val secondDate = it.second
+            val firstDateStr = dateFormat.format(firstDate)
+            val secondDateStr = dateFormat.format(secondDate)
+            listComicsViewModel.accept(UiAction.ShowComics("$firstDateStr,$secondDateStr"))
+        }
     }
 
     private fun initializeListComicsRecycleView() {
         linearLayoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.listsComicsRecyclerView.layoutManager = linearLayoutManager
+
         val header = ComicsDownloadStateAdapter { listComicsAdapter.retry() }
         binding.listsComicsRecyclerView.adapter = listComicsAdapter.withLoadStateHeaderAndFooter(
             header = header,
@@ -86,12 +163,10 @@ class ListComicsFragment : Fragment() {
         listComicsAdapter.setOnCardClickListener(
             object : ListComicsAdapter.ListenerCardComicClick {
                 override fun onComicCardClickListener(comic: ComicWithWritersAndPainters?) {
-                    sharedComicViewModel.comicMutableLiveData.value = comic
+                    sharedComicViewModel.shareComic(comic)
                     controller?.displayComicDetail()
                 }
             })
-
-        //listComicsViewModel.accept(UiAction.ShowComics(dataRange = "1949-01-01,2022-04-05"))
 
         lifecycleScope.launch {
             listComicsViewModel.pagingDataFlow.collectLatest(listComicsAdapter::submitData)
@@ -138,5 +213,6 @@ class ListComicsFragment : Fragment() {
 
     internal interface Controller {
         fun displayComicDetail()
+        fun setTopAppBar()
     }
 }
