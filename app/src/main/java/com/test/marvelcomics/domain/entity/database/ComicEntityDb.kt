@@ -6,16 +6,15 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "comic")
 data class ComicEntityDb(
     @PrimaryKey
-    val id: Int,
+    val comicId: Int,
     val title: String,
-    val issueNumber: Int?,
+    val issueNumber: Double?,
     val description: String?,
     val format: String?,
     val pageCount: Int?,
-    val solicitText: String?,
-    val previewText: String?,
     val urlDetail: String?,
     val saleDay: String?,
     val price: Double?,
-    val imagePath: String
+    val imagePath: String?,
+    val timeDownload: String
 )
