@@ -7,8 +7,7 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.google.gson.JsonSyntaxException
 import com.test.marvelcomics.data.database.ComicsDatabase
-import com.test.marvelcomics.data.retrofit.MarvelComicsService
-import com.test.marvelcomics.data.retrofit.MarvelNetworkSecurity
+import com.test.marvelcomics.data.network.MarvelComicsNetworkRepository
 import com.test.marvelcomics.domain.entity.api.ComicApi
 import com.test.marvelcomics.domain.entity.database.*
 import retrofit2.HttpException
@@ -17,7 +16,7 @@ import java.io.IOException
 @OptIn(ExperimentalPagingApi::class)
 class MarvelComicsRemoteMediator(
     private val dataRange: String,
-    private val service: MarvelComicsService,
+    private val networkRepository: MarvelComicsNetworkRepository,
     private val marvelComicsDatabase: ComicsDatabase
 ) : RemoteMediator<Int, ComicWithWritersAndPainters>() {
 
@@ -32,7 +31,6 @@ class MarvelComicsRemoteMediator(
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeyClosestToCurrentPosition(state)
                 offset = remoteKeys?.nextOffset?.minus(limit) ?: 0
-
                 if (remoteKeys == null) {
                     limit = state.config.initialLoadSize
                 }
@@ -51,23 +49,23 @@ class MarvelComicsRemoteMediator(
         }
 
         try {
-            val marvelNetworkSecurity = MarvelNetworkSecurity()
-            val apiResponse = service.getPublishedComics(
-                nowDate = dataRange,
-                formatType = "comic",
-                format = "comic",
-                noVariants = true,
-                orderBy = "-onsaleDate",
+            val apiResponse = networkRepository.getPublishedComics(
+                dataRange = dataRange,
                 offset = offset,
-                limit = limit,
-                timeStamp = marvelNetworkSecurity.timeStamp,
-                apiKey = marvelNetworkSecurity.publicMarvelApiKey,
-                hash = marvelNetworkSecurity.hashMd5ForMarvelRequest
+                limit = limit
             )
 
             val repos = apiResponse.dataComicsApi.comicsList
             val endOfPaginationReached = repos.isEmpty()
             marvelComicsDatabase.withTransaction {
+                if (loadType == LoadType.REFRESH) {
+                    marvelComicsDatabase.remoteKeysDao().clearRemoteKeys()
+                    marvelComicsDatabase.painterDao().clearPainter()
+                    marvelComicsDatabase.writerDao().clearWriter()
+                    marvelComicsDatabase.comicDao().clearComicWriterCrossRef()
+                    marvelComicsDatabase.comicDao().clearComicPainterCrossRef()
+                    marvelComicsDatabase.comicDao().clearComics()
+                }
                 val listComicsEntityDb = createListComicsDb(repos)
                 val prevOffset = if (offset == 0) null else offset - limit
                 val nextOffset =

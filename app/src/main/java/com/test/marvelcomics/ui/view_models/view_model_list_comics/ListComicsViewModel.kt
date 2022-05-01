@@ -1,5 +1,6 @@
 package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
@@ -11,9 +12,12 @@ import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -30,7 +34,7 @@ class ListComicsViewModel(
             return ZonedDateTime.parse(this.comic.comic.saleDay, pattern)
         }
 
-    private val state: StateFlow<UiState>
+    val stateRangeData: StateFlow<UiState>
 
     val pagingDataFlow: Flow<PagingData<UiModel>>
 
@@ -38,7 +42,7 @@ class ListComicsViewModel(
 
     init {
         val initialDataRange: String =
-            savedStateHandle.get(LAST_DATA_RANGE_SET) ?: DEFAULT_DATA_RANGE
+            savedStateHandle.get(LAST_DATA_RANGE_SET) ?: getInitialiseDataRange()
         val actionStateFlow = MutableSharedFlow<UiAction>()
         val shower = actionStateFlow
             .filterIsInstance<UiAction.ShowComics>()
@@ -49,9 +53,7 @@ class ListComicsViewModel(
                 replay = 1
             )
             .onStart {
-                emit(
-                    UiAction.ShowComics(dataRange = initialDataRange)
-                )
+                emit(UiAction.ShowComics(dataRange = initialDataRange))
             }
 
         pagingDataFlow = shower
@@ -60,7 +62,7 @@ class ListComicsViewModel(
             }
             .cachedIn(viewModelScope)
 
-        state = shower.map { uiActionShowComics ->
+        stateRangeData = shower.map { uiActionShowComics ->
             UiState(dataRange = uiActionShowComics.dataRange)
         }
             .stateIn(
@@ -83,44 +85,40 @@ class ListComicsViewModel(
             .map {
                 it.insertSeparators { before, after ->
                     if (after == null) {
-                        // we're at the end of the list
                         return@insertSeparators null
                     }
 
                     if (before == null) {
-                        // we're at the beginning of the list
                         return@insertSeparators UiModel.SeparatorItem(
                             "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.year}"
                         )
                     }
-                    // check between 2 items
                     val beforeDay = before.roundedSaleDay
                     val afterDay = after.roundedSaleDay
                     val diffDay =
                         ChronoUnit.DAYS.between(afterDay, beforeDay)
-                    if (diffDay > 1) {
+                    if (diffDay > 0) {
                         UiModel.SeparatorItem(
                             "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
                                     "${after.roundedSaleDay?.year}"
                         )
                     } else {
-                        // no separator
                         null
                     }
                 }
             }
 
     override fun onCleared() {
-        savedStateHandle[LAST_DATA_RANGE_SET] = state.value.dataRange
+        savedStateHandle[LAST_DATA_RANGE_SET] = stateRangeData.value.dataRange
         super.onCleared()
     }
 }
 
 data class UiState(
-    val dataRange: String = DEFAULT_DATA_RANGE
+    val dataRange: String = getInitialiseDataRange()
 )
 
 sealed class UiAction {
@@ -133,4 +131,27 @@ sealed class UiModel {
 }
 
 private const val LAST_DATA_RANGE_SET: String = "last_data_range_set"
-private const val DEFAULT_DATA_RANGE: String = "1949-01-01,2022-04-05"
+
+@SuppressLint("SimpleDateFormat")
+fun getInitialiseDataRange(): String {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+    val firstDayOfMonth = Date(getTimeStampFirstDayOfMonth().time)
+    val nowDate = Date()
+    val firstDayOfMonthStr = dateFormat.format(firstDayOfMonth)
+    val nowDateStr = dateFormat.format(nowDate)
+    return "$firstDayOfMonthStr,$nowDateStr"
+}
+
+fun getTimeStampFirstDayOfMonth(): Timestamp {
+    val calendar: Calendar = Calendar.getInstance()
+    calendar.time = Date()
+    calendar.set(
+        Calendar.DAY_OF_MONTH,
+        calendar.getActualMinimum(Calendar.DAY_OF_MONTH)
+    )
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return Timestamp(calendar.timeInMillis)
+}
