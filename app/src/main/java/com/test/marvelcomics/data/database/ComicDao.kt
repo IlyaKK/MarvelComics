@@ -19,7 +19,7 @@ interface ComicDao {
     @Query(
         "SELECT * FROM comic " +
                 "WHERE saleDay <= :endRange AND saleDay >= :startRange " +
-                "ORDER BY timeDownload ASC, saleDay DESC"
+                "ORDER BY saleDay ASC, timeDownload ASC "
     )
     fun getComics(
         startRange: String,

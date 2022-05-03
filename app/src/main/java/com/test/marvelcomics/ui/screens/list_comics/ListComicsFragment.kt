@@ -138,15 +138,16 @@ class ListComicsFragment : Fragment() {
                             pair
                         )
                         .build()
+
+                    dateRangePicker.addOnPositiveButtonClickListener { dataRangeDataPicker ->
+                        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+                        val firstDate = dataRangeDataPicker.first
+                        val secondDate = dataRangeDataPicker.second
+                        val firstDateStr = dateFormat.format(firstDate)
+                        val secondDateStr = dateFormat.format(secondDate)
+                        listComicsViewModel.accept(UiAction.ShowComics("$firstDateStr,$secondDateStr"))
+                    }
                 }
-        }
-        dateRangePicker.addOnPositiveButtonClickListener {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-            val firstDate = it.first
-            val secondDate = it.second
-            val firstDateStr = dateFormat.format(firstDate)
-            val secondDateStr = dateFormat.format(secondDate)
-            listComicsViewModel.accept(UiAction.ShowComics("$firstDateStr,$secondDateStr"))
         }
     }
 
