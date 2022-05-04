@@ -1,10 +1,8 @@
 package com.test.marvelcomics.ui.screens.list_comics
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.*
-import androidx.annotation.RequiresApi
 import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -31,7 +29,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
 class ListComicsFragment : Fragment() {
     companion object {
         fun newInstance(): ListComicsFragment {

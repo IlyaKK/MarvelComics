@@ -3,9 +3,7 @@ package com.test.marvelcomics.ui.main
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.net.ConnectivityManager
-import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
@@ -18,8 +16,6 @@ import com.test.marvelcomics.ui.view_models.view_model_main_activity.MainActivit
 import com.test.marvelcomics.ui.view_models.view_model_main_activity.MainActivityViewModelFactory
 import com.test.marvelcomics.ui.view_models.view_model_main_activity.StateScreen
 
-
-@RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
     private lateinit var binding: MainActivityBinding
     private lateinit var receiver: NetworkReceiver
@@ -36,6 +32,15 @@ class MainActivity : AppCompatActivity(), ListComicsFragment.Controller {
         super.onCreate(savedInstanceState)
         initialiseReceiver()
         initializeLaunchFragment()
+    }
+
+    override fun onBackPressed() {
+        if (mainActivityViewModel.state.value?.stateScreen == StateScreen.SCREEN_COMIC_DETAIL_FRAGMENT) {
+            mainActivityViewModel.setState(StateScreen.SCREEN_LIST_COMICS_FRAGMENT)
+            super.onBackPressed()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun initialiseReceiver() {

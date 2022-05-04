@@ -1,11 +1,12 @@
 package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.test.marvelcomics.data.MarvelComicsRepository
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
 import com.test.marvelcomics.util.UtilData
@@ -18,7 +19,6 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 class ListComicsViewModel(
     private val comicsRepository: MarvelComicsRepository,
     private val savedStateHandle: SavedStateHandle

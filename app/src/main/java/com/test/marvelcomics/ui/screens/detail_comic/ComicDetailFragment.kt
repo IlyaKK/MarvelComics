@@ -99,14 +99,11 @@ class ComicDetailFragment : Fragment() {
                 formatComicTextView.text = comic?.comic?.format ?: ""
                 pageCountComicTextView.text = comic?.comic?.pageCount.toString()
 
-                val saleDay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val zonedDateTime = UtilData.createZoneDataForItemOfList(comic?.comic?.saleDay)
-                    "${(zonedDateTime?.dayOfMonth)?.formatDayOrMonth()}." +
-                            "${(zonedDateTime?.monthValue)?.formatDayOrMonth()}." +
-                            "${zonedDateTime?.year}"
-                } else {
-                    ""
-                }
+
+                val zonedDateTime = UtilData.createZoneDataForItemOfList(comic?.comic?.saleDay)
+                val saleDay = "${(zonedDateTime?.dayOfMonth)?.formatDayOrMonth()}." +
+                        "${(zonedDateTime?.monthValue)?.formatDayOrMonth()}." +
+                        "${zonedDateTime?.year}"
                 saleDayComicTextView.text = saleDay
 
                 comic?.writers?.forEach {

@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class UtilData {
-    @RequiresApi(Build.VERSION_CODES.O)
     companion object {
         private const val formatDate = "yyyy-MM-dd"
 
@@ -21,11 +20,9 @@ class UtilData {
         @SuppressLint("SimpleDateFormat")
         private val patternForStringDate = SimpleDateFormat(formatDate)
 
-        @RequiresApi(Build.VERSION_CODES.O)
         private val patternForDate: DateTimeFormatter = DateTimeFormatter.ofPattern(formatDate)
 
-        @RequiresApi(Build.VERSION_CODES.O)
-        val patternDateDb: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
+        private val patternDateDb: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
 
         fun createStringDataRange(firstDay: Date, secondDay: Date): String {
             val firstDayOfMonthStr = patternForStringDate.format(firstDay)
@@ -66,7 +63,6 @@ class UtilData {
             return massiveDataRangeFinal
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun createZoneDataForItemOfList(saleDay: String?): ZonedDateTime? {
             return ZonedDateTime.parse(saleDay, patternDateDb)
         }

@@ -20,7 +20,6 @@ class MarvelComicsRepository(
         const val NETWORK_PAGE_SIZE = 30
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPagingApi::class)
     fun getComicsData(dataRange: String): Flow<PagingData<ComicWithWritersAndPainters>> {
         val massiveDataRange = UtilData.createMassiveStringDataRangeForItemOfList(dataRange)
