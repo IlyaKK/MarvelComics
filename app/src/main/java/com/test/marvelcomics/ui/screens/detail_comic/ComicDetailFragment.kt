@@ -19,8 +19,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.test.marvelcomics.databinding.ComicDetailFragmentBinding
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import com.test.marvelcomics.util.UtilData
 
 class ComicDetailFragment : Fragment() {
     private lateinit var binding: ComicDetailFragmentBinding
@@ -101,9 +100,10 @@ class ComicDetailFragment : Fragment() {
                 pageCountComicTextView.text = comic?.comic?.pageCount.toString()
 
                 val saleDay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
-                    val zonedDateTime = ZonedDateTime.parse(comic?.comic?.saleDay, pattern)
-                    "${(zonedDateTime.dayOfMonth).formatDayOrMonth()}.${(zonedDateTime.monthValue).formatDayOrMonth()}.${zonedDateTime.year}"
+                    val zonedDateTime = UtilData.createZoneDataForItemOfList(comic?.comic?.saleDay)
+                    "${(zonedDateTime?.dayOfMonth)?.formatDayOrMonth()}." +
+                            "${(zonedDateTime?.monthValue)?.formatDayOrMonth()}." +
+                            "${zonedDateTime?.year}"
                 } else {
                     ""
                 }
