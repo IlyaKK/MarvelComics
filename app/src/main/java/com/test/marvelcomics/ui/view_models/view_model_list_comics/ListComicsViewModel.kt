@@ -28,7 +28,6 @@ class ListComicsViewModel(
     private fun Int.formatDayOrMonth() = "%02d".format(this)
 
     private val UiModel.ComicItem.roundedSaleDay: ZonedDateTime?
-        @RequiresApi(Build.VERSION_CODES.O)
         get() {
             val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
             return ZonedDateTime.parse(this.comic.comic.saleDay, pattern)
@@ -78,7 +77,6 @@ class ListComicsViewModel(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun getMarvelComicsByRange(dataRange: String): Flow<PagingData<UiModel>> =
         comicsRepository.getComicsData(dataRange)
             .map { pagingData -> pagingData.map { UiModel.ComicItem(it) } }
@@ -98,7 +96,7 @@ class ListComicsViewModel(
                     val beforeDay = before.roundedSaleDay
                     val afterDay = after.roundedSaleDay
                     val diffDay =
-                        ChronoUnit.DAYS.between(afterDay, beforeDay)
+                        ChronoUnit.DAYS.between(beforeDay, afterDay)
                     if (diffDay > 0) {
                         UiModel.SeparatorItem(
                             "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
