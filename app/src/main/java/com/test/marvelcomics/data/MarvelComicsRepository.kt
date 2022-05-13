@@ -1,5 +1,7 @@
 package com.test.marvelcomics.data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -7,6 +9,7 @@ import androidx.paging.PagingData
 import com.test.marvelcomics.data.database.ComicsDatabase
 import com.test.marvelcomics.data.network.MarvelComicsNetworkRepository
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
+import com.test.marvelcomics.util.UtilData
 import kotlinx.coroutines.flow.Flow
 
 class MarvelComicsRepository(
@@ -19,12 +22,9 @@ class MarvelComicsRepository(
 
     @OptIn(ExperimentalPagingApi::class)
     fun getComicsData(dataRange: String): Flow<PagingData<ComicWithWritersAndPainters>> {
-        val addStrForDate = "T00:00:00-0400"
-        val massiveDataRange = dataRange.split(",", limit = 2)
-        val startRange = massiveDataRange[0] + addStrForDate
-        val endRange = massiveDataRange[1] + addStrForDate
+        val massiveDataRange = UtilData.createMassiveStringDataRangeForItemOfList(dataRange)
         val pagingSourceFactory = {
-            database.comicDao().getComics(startRange, endRange)
+            database.comicDao().getComics(massiveDataRange[0], massiveDataRange[1])
         }
         return Pager(
             config = PagingConfig(

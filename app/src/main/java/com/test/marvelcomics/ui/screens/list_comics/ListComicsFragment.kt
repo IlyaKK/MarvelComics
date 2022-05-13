@@ -1,11 +1,8 @@
 package com.test.marvelcomics.ui.screens.list_comics
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.*
-import androidx.annotation.RequiresApi
 import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -25,19 +22,13 @@ import com.test.marvelcomics.ui.screens.list_comics.recycler_view.ListComicsAdap
 import com.test.marvelcomics.ui.view_models.SharedComicViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.ListComicsViewModel
 import com.test.marvelcomics.ui.view_models.view_model_list_comics.UiAction
-import com.test.marvelcomics.ui.view_models.view_model_list_comics.getTimeStampFirstDayOfMonth
+import com.test.marvelcomics.util.UtilData
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
 class ListComicsFragment : Fragment() {
     companion object {
         fun newInstance(): ListComicsFragment {
@@ -106,46 +97,30 @@ class ListComicsFragment : Fragment() {
         return false
     }
 
-
-    @SuppressLint("SimpleDateFormat")
     private fun initialiseDataRangeCreateDataPicker() {
         lifecycleScope.launch {
             listComicsViewModel.stateRangeData.map {
                 it.dataRange
             }.distinctUntilChanged()
                 .collect {
-                    val massiveDataRange = it.split(",", limit = 2)
-                    val startRange = massiveDataRange[0]
-                    val endRange = massiveDataRange[1]
-                    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                    val startRangeLocalDateTime = LocalDate.parse(startRange, pattern)
-                    val endRangeLocalDateTime = LocalDate.parse(endRange, pattern)
-
-                    val startRangeLong =
-                        startRangeLocalDateTime.atStartOfDay(ZoneOffset.UTC).toInstant()
-                            .toEpochMilli()
-
-                    val endRangeLong =
-                        endRangeLocalDateTime.atStartOfDay(ZoneOffset.UTC).toInstant()
-                            .toEpochMilli()
-
-                    val pair = Pair(
-                        startRangeLong,
-                        endRangeLong
-                    )
+                    val pairDataRange = UtilData.createPairDataRange(it)
                     dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
                         .setSelection(
-                            pair
+                            pairDataRange
                         )
                         .build()
 
                     dateRangePicker.addOnPositiveButtonClickListener { dataRangeDataPicker ->
-                        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
                         val firstDate = dataRangeDataPicker.first
                         val secondDate = dataRangeDataPicker.second
-                        val firstDateStr = dateFormat.format(firstDate)
-                        val secondDateStr = dateFormat.format(secondDate)
-                        listComicsViewModel.accept(UiAction.ShowComics("$firstDateStr,$secondDateStr"))
+                        listComicsViewModel.accept(
+                            UiAction.ShowComics(
+                                UtilData.createStringDataRange(
+                                    Date(firstDate),
+                                    Date(secondDate)
+                                )
+                            )
+                        )
                     }
                 }
         }

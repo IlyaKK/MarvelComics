@@ -1,25 +1,23 @@
 package com.test.marvelcomics.ui.view_models.view_model_list_comics
 
-import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.test.marvelcomics.data.MarvelComicsRepository
 import com.test.marvelcomics.domain.entity.database.ComicWithWritersAndPainters
+import com.test.marvelcomics.util.UtilData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.sql.Timestamp
-import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListComicsViewModel(
     private val comicsRepository: MarvelComicsRepository,
@@ -27,10 +25,9 @@ class ListComicsViewModel(
 ) : ViewModel() {
     private fun Int.formatDayOrMonth() = "%02d".format(this)
 
-    private val UiModel.ComicItem.roundedSaleDay: ZonedDateTime?
+    private val UiModel.ComicItem.zoneDataSaleDay: ZonedDateTime?
         get() {
-            val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
-            return ZonedDateTime.parse(this.comic.comic.saleDay, pattern)
+            return UtilData.createZoneDataForItemOfList(this.comic.comic.saleDay)
         }
 
     val stateRangeData: StateFlow<UiState>
@@ -88,20 +85,20 @@ class ListComicsViewModel(
 
                     if (before == null) {
                         return@insertSeparators UiModel.SeparatorItem(
-                            "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
-                                    "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
-                                    "${after.roundedSaleDay?.year}"
+                            "${after.zoneDataSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
+                                    "${after.zoneDataSaleDay?.monthValue?.formatDayOrMonth()}." +
+                                    "${after.zoneDataSaleDay?.year}"
                         )
                     }
-                    val beforeDay = before.roundedSaleDay
-                    val afterDay = after.roundedSaleDay
+                    val beforeDay = before.zoneDataSaleDay
+                    val afterDay = after.zoneDataSaleDay
                     val diffDay =
                         ChronoUnit.DAYS.between(beforeDay, afterDay)
                     if (diffDay > 0) {
                         UiModel.SeparatorItem(
-                            "${after.roundedSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
-                                    "${after.roundedSaleDay?.monthValue?.formatDayOrMonth()}." +
-                                    "${after.roundedSaleDay?.year}"
+                            "${after.zoneDataSaleDay?.dayOfMonth?.formatDayOrMonth()}." +
+                                    "${after.zoneDataSaleDay?.monthValue?.formatDayOrMonth()}." +
+                                    "${after.zoneDataSaleDay?.year}"
                         )
                     } else {
                         null
@@ -130,14 +127,10 @@ sealed class UiModel {
 
 private const val LAST_DATA_RANGE_SET: String = "last_data_range_set"
 
-@SuppressLint("SimpleDateFormat")
 fun getInitialiseDataRange(): String {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd")
     val firstDayOfMonth = Date(getTimeStampFirstDayOfMonth().time)
     val nowDate = Date()
-    val firstDayOfMonthStr = dateFormat.format(firstDayOfMonth)
-    val nowDateStr = dateFormat.format(nowDate)
-    return "$firstDayOfMonthStr,$nowDateStr"
+    return UtilData.createStringDataRange(firstDayOfMonth, nowDate)
 }
 
 fun getTimeStampFirstDayOfMonth(): Timestamp {
