@@ -1,8 +1,6 @@
 package com.test.marvelcomics.util
 
 import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.util.Pair
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -48,10 +46,10 @@ class UtilData {
             return Pair(startRangeLong, endRangeLong)
         }
 
-        fun createMassiveStringDataRangeForItemOfList(dataRange: String, pair: Boolean = false): List<String> {
+        fun createMassiveStringDataRangeForItemOfList(dataRange: String, isPair: Boolean = false): List<String> {
             val massiveDataRangeFinal = mutableListOf<String>()
             val massiveDataRange = dataRange.split(",", limit = 2)
-            if(pair){
+            if(isPair){
                 massiveDataRangeFinal.add(massiveDataRange[0])
                 massiveDataRangeFinal.add(massiveDataRange[1])
             }
