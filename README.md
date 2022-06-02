@@ -1,5 +1,5 @@
 # MarvelComics
-For use project clone repository and build master branch
+For use project clone repository and build master branch. In project I use Fragments, MVVM, Coroutines+Flow, Paging.
 
 ## API
 For use API in project create file **apikey.properties** in project root with: 
